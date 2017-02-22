@@ -1,7 +1,8 @@
 <resources>
-    <string name="app_name">TestGmaps</string>
-    <string name="title_activity_maps">Map</string>
+    <string name="app_name">GeoTag</string>
+    <string name="title_activity_maps">GeoTag</string>
     <string name="button_text">Place Marker</string>
+    <string name="action_settings">Settings</string>
     <string name="marker_title">Marker</string>
     <string name="pref_connectionType">Connection Type</string>
     <string name="pref_connectionTypes_default">HTTP</string>
@@ -14,5 +15,6 @@
     <string name="pref_username_default">username</string>
     <string name="pref_password_default">password</string>
     <string name="pref_zoomLevel">Zoom Level </string>
-    <string name="pref_zoonLevel_default">16</string>
+    <string name="pref_zoomLevel_default">16</string>
 </resources>
+

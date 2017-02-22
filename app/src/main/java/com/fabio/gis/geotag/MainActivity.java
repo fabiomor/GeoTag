@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -11,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 
 import com.fabio.gis.geotag.R;
 import com.google.android.gms.maps.model.LatLng;
@@ -24,8 +27,10 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnLo
     private SharedPreferences sharedPreferences;
     private SharedPreferences.OnSharedPreferenceChangeListener sharedPreferenceChangeListener;
 
-    private Button button;
+    private ImageButton button;
     private MapsFragment mapsFragment;
+
+    private View coordinatorLayout;
 
 
 
@@ -34,10 +39,12 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnLo
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        /*
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         if (toolbar != null) {
             setSupportActionBar(toolbar);
         }
+        */
         mapsFragment = new MapsFragment();
         //getSupportFragmentManager().beginTransaction()
                 //.replace(R.id.activity_main, mapsFragment, mapsFragment.getClass().getSimpleName()).addToBackStack(null).commit();
@@ -48,8 +55,10 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnLo
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPreferenceChangeListener = new OnSharedPreferenceChangeListener();
 
-        button = (Button) findViewById(R.id.button);
+        button = (ImageButton) findViewById(R.id.place_marker);
         button.setOnClickListener(this);
+
+        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
 
     }
 
@@ -79,13 +88,24 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnLo
 
     @Override
     public void onClick(View v) {
-        button = (Button) v.findViewById(R.id.button);
-        button.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.place_marker:
                 mapsFragment.placeMarker();
-            }
-        });
+                Snackbar snackbar = Snackbar
+                        .make(coordinatorLayout, getString(R.string.marker_created), Snackbar.LENGTH_LONG)
+                        .setAction("UNDO", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                mapsFragment.removeMarker();
+                                //Snackbar snackbarUndo = Snackbar.make(coordinatorLayout, getString(R.string.marker_deleted), Snackbar.LENGTH_SHORT);
+                                //snackbarUndo.show();
+                            }
+                        });
+               snackbar.show();
+                break;
+            case R.id.send_positions:
+                break;
+        }
     }
 
     // menu
