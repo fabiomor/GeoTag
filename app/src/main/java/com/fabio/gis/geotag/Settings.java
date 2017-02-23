@@ -41,13 +41,9 @@ public class Settings {
         Settings.password = password;
     }
 
-    public static void setServerProtocol(String serverProtocol) {
-        Settings.serverProtocol = serverProtocol;
-    }
+    public static void setServerProtocol(String serverProtocol) { Settings.serverProtocol = serverProtocol; }
 
-    public static void setServerAddress(String serverAddress) {
-        Settings.serverAddress = serverAddress;
-    }
+    public static void setServerAddress(String serverAddress) { Settings.serverAddress = serverAddress; }
 
     public static void setServerPort(int serverPort) {
         Settings.serverPort = serverPort;

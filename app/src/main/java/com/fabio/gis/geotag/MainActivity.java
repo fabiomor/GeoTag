@@ -1,5 +1,6 @@
 package com.fabio.gis.geotag;
 
+import android.*;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -12,11 +13,13 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.ImageButton;
+import android.support.design.widget.FloatingActionButton;
 
 import com.fabio.gis.geotag.R;
 import com.google.android.gms.maps.model.LatLng;
+
+import java.util.Arrays;
+import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity implements MapsFragment.OnLocationChangedListener, View.OnClickListener{
@@ -27,7 +30,7 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnLo
     private SharedPreferences sharedPreferences;
     private SharedPreferences.OnSharedPreferenceChangeListener sharedPreferenceChangeListener;
 
-    private ImageButton button;
+    private FloatingActionButton button;
     private MapsFragment mapsFragment;
 
     private View coordinatorLayout;
@@ -55,7 +58,7 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnLo
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPreferenceChangeListener = new OnSharedPreferenceChangeListener();
 
-        button = (ImageButton) findViewById(R.id.place_marker);
+        button = (FloatingActionButton) findViewById(R.id.place_marker);
         button.setOnClickListener(this);
 
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
@@ -65,6 +68,13 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnLo
     @Override
     protected void onStart() {
         super.onStart();
+        // checking permissions
+        if(!PermissionManager.checkPermissions(this.getApplicationContext(), Arrays.asList(
+                android.Manifest.permission.ACCESS_FINE_LOCATION,
+                android.Manifest.permission.ACCESS_COARSE_LOCATION))){
+            PermissionManager.requestPermissions(this,Constants.APPLICATION_PERMISSIONS_REQUEST);
+        }
+
     }
 
     @Override
@@ -88,10 +98,11 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnLo
 
     @Override
     public void onClick(View v) {
+        Snackbar snackbar;
         switch (v.getId()){
             case R.id.place_marker:
                 mapsFragment.placeMarker();
-                Snackbar snackbar = Snackbar
+                snackbar = Snackbar
                         .make(coordinatorLayout, getString(R.string.marker_created), Snackbar.LENGTH_LONG)
                         .setAction("UNDO", new View.OnClickListener() {
                             @Override
@@ -107,6 +118,8 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnLo
                 break;
         }
     }
+
+
 
     // menu
 
