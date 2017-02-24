@@ -1,122 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout
+<android.support.v4.widget.DrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/coordinator_layout">
+    android:id="@+id/drawer_layout">
+
+    <include layout="@layout/app_bar_main" />
 
 
-
-    <FrameLayout
-        android:id="@+id/mapscontainer"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-    </FrameLayout>
-    <!--
-
-
-    android:layout_marginBottom="80dp"
-
-
-        <android.support.design.widget.AppBarLayout
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:theme="@style/AppTheme">
-
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        app:popupTheme="@style/AppTheme" />
-    </android.support.design.widget.AppBarLayout>
-    <ImageButton
-        android:id="@+id/imageButton"
-        android:layout_width="65dp"
-        android:layout_height="65dp"
-        android:elevation="10dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:background="@drawable/oval"
-        android:layout_marginTop="35dp"
-        android:layout_marginRight="35dp"
-        android:layout_marginBottom="35dp"
-        android:src="@drawable/ic_marker"/>
-
-            <android.support.design.widget.FloatingActionButton
-        android:id="@+id/imageButton"
+    <android.support.design.widget.NavigationView
+        android:id="@+id/nav_view"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:src="@drawable/ic_marker"
-        app:layout_anchor="@id/mapscontainer"
-        app:layout_anchorGravity="bottom|right|end"
-        />
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/imageButton2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:layout_marginTop="85dp"
-        android:src="@drawable/ic_marker"
-        app:layout_anchor="@id/imageButton"
-        android:layout_gravity="top|end"
-        app:layout_anchorGravity="bottom"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:fitsSystemWindows="true"
+        app:headerLayout="@layout/nav_header"
+        app:menu="@menu/activity_main_drawer"
         />
 
 
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/send_positions"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        android:src="@android:drawable/ic_media_play"
-        app:backgroundTint="@android:color/holo_green_dark" />
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/place_marker"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top|end"
-        android:layout_marginBottom="0dp"
-        android:layout_marginEnd="0dp"
-        android:layout_marginLeft="0dp"
-        android:layout_marginRight="0dp"
-        android:layout_marginStart="0dp"
-        android:layout_marginTop="0dp"
-        android:src="@drawable/ic_marker"
-        app:layout_anchor="@id/send_positions"
-        app:layout_anchorGravity="top"
-        app:backgroundTint="@android:color/holo_red_dark" />
-        !-->
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/place_marker"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="80dp"
-        android:layout_gravity="bottom|end"
-        android:layout_marginRight="16dp"
-        app:backgroundTint="@color/secondaryColorAccent"
-        app:elevation="6dp"
-        app:pressedTranslationZ="12dp"
-        android:src="@drawable/ic_marker" />
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/send_positions"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        app:elevation="6dp"
-        app:backgroundTint="@color/colorAccent"
-        app:pressedTranslationZ="12dp"
-        android:layout_margin="16dp"
-        android:src="@drawable/ic_play_arrow_white_24dp" />
-
-
-</android.support.design.widget.CoordinatorLayout>
+</android.support.v4.widget.DrawerLayout>
 
 
 

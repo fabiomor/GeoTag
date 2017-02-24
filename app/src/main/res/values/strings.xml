@@ -6,7 +6,8 @@
     <string name="marker_title">Marker</string>
     <string name="marker_created">Marker created</string>
     <string name="marker_deleted">Marker deleted</string>
-
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="pref_connectionType">Connection Type</string>
     <string name="pref_connectionTypes_default">HTTP</string>
     <string name="pref_serverHostAddress">Server Host Address</string>
