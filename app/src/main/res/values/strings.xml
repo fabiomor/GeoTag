@@ -6,6 +6,12 @@
     <string name="marker_title">Marker</string>
     <string name="marker_created">Marker created</string>
     <string name="marker_deleted">Marker deleted</string>
+    <string name="map_not_loaded">Map Not Loaded</string>
+    <string name="pos_not_loaded">Position Not Loaded</string>
+    <string name="gps_alert_dialog_title">GPS disabled</string>
+    <string name="gps_alert_dialog_text">GPS needed, would you like to enable it? </string>
+    <string name="ok">Ok</string>
+    <string name="cancel">Cancel</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="pref_connectionType">Connection Type</string>

@@ -3,6 +3,8 @@ package com.fabio.gis.geotag;
 
 public interface Constants {
 
+
+    // preferences
     String USERNAME_KEY = "pref_username";
     String PASSWORD_KEY = "pref_password";
     String SERVER_ADDRESS_KEY = "pref_serverHostAddress";

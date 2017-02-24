@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnLo
             setSupportActionBar(toolbar);
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.activity_main);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnLo
         button = (FloatingActionButton) findViewById(R.id.place_marker);
         button.setOnClickListener(this);
 
-        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
+        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout_app_bar_main);
 
     }
 
@@ -86,6 +86,10 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnLo
             PermissionManager.requestPermissions(this,Constants.APPLICATION_PERMISSIONS_REQUEST);
         }
 
+        // updating settings
+        for(String key : sharedPreferences.getAll().keySet()) {
+            updateSettingsFromPreferences(key);
+        }
     }
 
     @Override
@@ -110,11 +114,12 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnLo
     @Override
     public void onClick(View v) {
         Snackbar snackbar;
+        String msg;
         switch (v.getId()){
             case R.id.place_marker:
-                mapsFragment.placeMarker();
+                msg = mapsFragment.placeMarker();
                 snackbar = Snackbar
-                        .make(coordinatorLayout, getString(R.string.marker_created), Snackbar.LENGTH_LONG)
+                        .make(coordinatorLayout, msg, Snackbar.LENGTH_LONG)
                         .setAction("UNDO", new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
@@ -155,7 +160,7 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnLo
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.activity_main);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
@@ -169,12 +174,8 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnLo
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
+        if (id == R.id.nav_manage) {
             // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
         } else if (id == R.id.nav_manage) {
 
         } else if (id == R.id.nav_share) {
@@ -183,7 +184,7 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnLo
 
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.activity_main);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }

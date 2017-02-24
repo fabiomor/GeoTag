@@ -1,19 +1,24 @@
 package com.fabio.gis.geotag;
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.nfc.Tag;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -34,8 +39,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private Marker currLocationMarker;
     private int markerCount;
     private OnLocationChangedListener onLocationChangedListener;
-    private static final float ZOOM_LEVEL = 17;
-
+    private LocationManager locationManager;
+    private LocationListener locationListener;
 
     @Override
     public void onAttach(Context context) {
@@ -82,6 +87,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onResume() {
         super.onResume();
+        registerLocationListeners();
         Log.i(TAG,"onResume");
     }
 
@@ -101,7 +107,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     public void onDestroyView() {
         super.onDestroyView();
         Log.i(TAG,"onDestroyView");
-
+        if(locationManager != null){ locationManager = null;}
+        if(onLocationChangedListener != null){ onLocationChangedListener = null;}
+        if(locationListener != null) { locationListener = null;}
     }
 
     @Override
@@ -114,7 +122,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     public void onDetach() {
         Log.i(TAG,"onDetach");
         super.onDetach();
-        onLocationChangedListener = null;
     }
 
     /**
@@ -138,6 +145,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         else {
             mMap.setMyLocationEnabled(true);
             registerLocationListeners();
+            if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+                promptGps();
+            }
             //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, ZOOM_LEVEL));
             //buildGoogleApiClient();
             //mGoogleApiClient.connect();
@@ -149,7 +159,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 && ActivityCompat.checkSelfPermission(mContext, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        LocationManager locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
+        locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
         Location locationGps = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         Location locationNetwork = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
@@ -162,7 +172,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
             latLng = new LatLng(locationNetwork.getLatitude(),locationNetwork.getLongitude());
         }
 
-        LocationListener locationListener = new DeviceLocationListener();
+        locationListener = new DeviceLocationListener();
 
         if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
@@ -173,14 +183,23 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
-    public void placeMarker(){
-        markerCount++;
-        MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.position(latLng);
-        markerOptions.title(getString(R.string.marker_title) + " " + markerCount);
-        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-        currLocationMarker = mMap.addMarker(markerOptions);
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, ZOOM_LEVEL));
+    public String placeMarker(){
+        String msg;
+        if(mMap != null && latLng != null) {
+            markerCount++;
+            MarkerOptions markerOptions = new MarkerOptions();
+            markerOptions.position(latLng);
+            markerOptions.title(getString(R.string.marker_title) + " " + markerCount);
+            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+            currLocationMarker = mMap.addMarker(markerOptions);
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, Settings.getZoomLevel()));
+            msg = getString(R.string.marker_created);
+        } else if (mMap == null) {
+            msg = getString(R.string.map_not_loaded);
+        } else {
+            msg = getString(R.string.pos_not_loaded);
+        }
+        return msg;
     }
 
     public void removeMarker(){
@@ -192,11 +211,31 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         public void onLocationChanged(LatLng latLng);
     }
 
+
+    private void promptGps(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setMessage(R.string.gps_alert_dialog_text)
+                .setTitle(R.string.gps_alert_dialog_title)
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        Intent gpsOptionsIntent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                        startActivity(gpsOptionsIntent);
+                        }})
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // User cancelled the dialog
+                    }
+                });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
     private class DeviceLocationListener implements LocationListener {
         @Override
         public void onLocationChanged(Location location) {
             latLng = new LatLng(location.getLatitude(),location.getLongitude());
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, ZOOM_LEVEL));
+            float z = Settings.getZoomLevel();
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, Settings.getZoomLevel()));
             if(onLocationChangedListener != null) {
                 onLocationChangedListener.onLocationChanged(latLng);
             }
@@ -216,14 +255,20 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
         @Override
         public void onStatusChanged(String s, int i, Bundle bundle) {
+            Log.i(TAG,"Status Changed");
+            registerLocationListeners();
         }
 
         @Override
         public void onProviderEnabled(String s) {
+            Log.i(TAG,"Povider Enabled");
+            registerLocationListeners();
         }
 
         @Override
         public void onProviderDisabled(String s) {
+            Log.i(TAG,"Provider Disabled");
+
         }
     }
 }
