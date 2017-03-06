@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 24
-    buildToolsVersion "24.0.3"
+    buildToolsVersion '25.0.0'
     defaultConfig {
         applicationId "com.fabio.gis.geotag"
         minSdkVersion 19
@@ -31,5 +31,6 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:24.2.1'
     compile "com.android.support:support-v4:24.2.1"
     compile 'com.google.android.gms:play-services:10.2.0'
+    compile 'com.jakewharton:butterknife:7.0.1'
     testCompile 'junit:junit:4.12'
 }

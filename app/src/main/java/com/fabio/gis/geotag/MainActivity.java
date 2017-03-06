@@ -8,6 +8,7 @@ import android.preference.PreferenceManager;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -36,8 +37,13 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnLo
     private SharedPreferences.OnSharedPreferenceChangeListener sharedPreferenceChangeListener;
 
     private FloatingActionButton button;
-    private MapsFragment mapsFragment;
 
+    // fragments
+    private MapsFragment mapsFragment;
+    private ChartsFragment chartsFragment;
+
+    // layouts
+    private NavigationView navigationView;
     private View coordinatorLayout;
 
 
@@ -58,12 +64,14 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnLo
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
+        if(Constants.IS_LOGIN_REQUIRED) {
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
+        }
 
         mapsFragment = new MapsFragment();
-        //getSupportFragmentManager().beginTransaction()
-                //.replace(R.id.activity_main, mapsFragment, mapsFragment.getClass().getSimpleName()).addToBackStack(null).commit();
         getSupportFragmentManager().beginTransaction()
-                .add(R.id.mapscontainer,mapsFragment)
+                .add(R.id.maincontainer,mapsFragment)
                 .commit();
         
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -73,6 +81,9 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnLo
         button.setOnClickListener(this);
 
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout_app_bar_main);
+
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
 
     }
 
@@ -108,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnLo
 
     @Override
     public void onLocationChanged(LatLng latLng) {
-        Log.i(TAG,"latitude: " + latLng.latitude + " longitude: " + latLng.longitude);
+        //Log.i(TAG,"latitude: " + latLng.latitude + " longitude: " + latLng.longitude);
     }
 
     @Override
@@ -172,18 +183,40 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnLo
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        if (id == R.id.nav_manage) {
-            // Handle the camera action
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+        Snackbar snackbar;
+        Fragment fragment = null;
+        switch(item.getItemId()){
+            case R.id.nav_manage:
+                snackbar = Snackbar
+                        .make(coordinatorLayout, "manage", Snackbar.LENGTH_LONG);
+                snackbar.show();
+                break;
+            case R.id.nav_share:
+                snackbar = Snackbar
+                        .make(coordinatorLayout, "share", Snackbar.LENGTH_LONG);
+                snackbar.show();
+                break;
+            case R.id.nav_send:
+                snackbar = Snackbar
+                        .make(coordinatorLayout, "send", Snackbar.LENGTH_LONG);
+                snackbar.show();
+                fragment = new ChartsFragment();
+                break;
+            case R.id.nav_view:
+                snackbar = Snackbar
+                        .make(coordinatorLayout, "view", Snackbar.LENGTH_LONG);
+                snackbar.show();
+                break;
         }
-
+        if(fragment != null){
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.maincontainer,fragment)
+                    .commit();
+        }
+        // Highlight the selected item has been done by NavigationView
+        item.setChecked(true);
+        // Set action bar title
+        //setTitle(item.getTitle());
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.activity_main);
         drawer.closeDrawer(GravityCompat.START);
         return true;

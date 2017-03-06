@@ -12,6 +12,7 @@ public interface Constants {
     String SERVER_PROTOCOL_KEY = "pref_connectionType";
     String ZOOM_LEVEL = "pref_zoomLevel";
 
+    boolean IS_LOGIN_REQUIRED = false;
 
     int APPLICATION_PERMISSIONS_REQUEST = 123;
 }
