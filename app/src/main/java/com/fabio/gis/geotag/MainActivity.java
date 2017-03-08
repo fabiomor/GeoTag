@@ -1,6 +1,5 @@
 package com.fabio.gis.geotag;
 
-import android.*;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -9,6 +8,7 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -20,11 +20,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.support.design.widget.FloatingActionButton;
 
-import com.fabio.gis.geotag.R;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.Arrays;
-import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity implements MapsFragment.OnLocationChangedListener,
@@ -36,15 +34,19 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnLo
     private SharedPreferences sharedPreferences;
     private SharedPreferences.OnSharedPreferenceChangeListener sharedPreferenceChangeListener;
 
-    private FloatingActionButton button;
+    private FloatingActionButton fabMain,fabSecondary;
 
     // fragments
     private MapsFragment mapsFragment;
     private ChartsFragment chartsFragment;
+    private FragmentManager fragmentManager;
 
     // layouts
     private NavigationView navigationView;
     private View coordinatorLayout;
+
+    //
+    LatLng latLng;
 
 
 
@@ -70,15 +72,19 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnLo
         }
 
         mapsFragment = new MapsFragment();
-        getSupportFragmentManager().beginTransaction()
+        fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction()
                 .add(R.id.maincontainer,mapsFragment)
                 .commit();
         
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPreferenceChangeListener = new OnSharedPreferenceChangeListener();
 
-        button = (FloatingActionButton) findViewById(R.id.place_marker);
-        button.setOnClickListener(this);
+        fabMain = (FloatingActionButton) findViewById(R.id.place_marker);
+        fabMain.setOnClickListener(this);
+        fabSecondary = (FloatingActionButton) findViewById(R.id.add_marker_info);
+        fabSecondary.setOnClickListener(this);
+
 
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout_app_bar_main);
 
@@ -119,7 +125,7 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnLo
 
     @Override
     public void onLocationChanged(LatLng latLng) {
-        //Log.i(TAG,"latitude: " + latLng.latitude + " longitude: " + latLng.longitude);
+        this.latLng = latLng;
     }
 
     @Override
@@ -141,7 +147,16 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnLo
                         });
                snackbar.show();
                 break;
-            case R.id.send_positions:
+            case R.id.add_marker_info:
+                fabMain.setVisibility(View.INVISIBLE);
+                Bundle bundle = new Bundle();
+                bundle.putDouble("latitude", latLng.latitude);
+                bundle.putDouble("longitude", latLng.longitude);
+                TomapFragment tomapFragment = new TomapFragment();
+                tomapFragment.setArguments(bundle);
+                fragmentManager.beginTransaction()
+                        .replace(R.id.maincontainer, tomapFragment)
+                        .commit();
                 break;
         }
     }
@@ -209,8 +224,8 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnLo
                 break;
         }
         if(fragment != null){
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.maincontainer,fragment)
+            fragmentManager.beginTransaction()
+                    .replace(R.id.maincontainer, new ChartsFragment())
                     .commit();
         }
         // Highlight the selected item has been done by NavigationView
@@ -255,7 +270,6 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnLo
     }
     
     //listeners
-
     private class OnSharedPreferenceChangeListener implements SharedPreferences.OnSharedPreferenceChangeListener {
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
