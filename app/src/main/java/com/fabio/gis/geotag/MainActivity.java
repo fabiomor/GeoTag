@@ -47,6 +47,7 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnLo
 
     //
     LatLng latLng;
+    MapMarker mapMarker;
 
 
 
@@ -132,19 +133,45 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnLo
     public void onClick(View v) {
         Snackbar snackbar;
         String msg;
+
         switch (v.getId()){
             case R.id.place_marker:
-                msg = mapsFragment.placeMarker();
-                snackbar = Snackbar
-                        .make(coordinatorLayout, msg, Snackbar.LENGTH_LONG)
-                        .setAction("UNDO", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                mapsFragment.removeMarker();
-                                //Snackbar snackbarUndo = Snackbar.make(coordinatorLayout, getString(R.string.marker_deleted), Snackbar.LENGTH_SHORT);
-                                //snackbarUndo.show();
-                            }
-                        });
+                mapMarker = mapsFragment.placeMarker();
+                if(mapMarker == null) {
+                    snackbar = Snackbar
+                            .make(coordinatorLayout, getString(R.string.map_not_loaded), Snackbar.LENGTH_LONG)
+                            .setAction(getString(R.string.retry), new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    mapsFragment.placeMarker();
+                                    //Snackbar snackbarUndo = Snackbar.make(coordinatorLayout, getString(R.string.marker_deleted), Snackbar.LENGTH_SHORT);
+                                    //snackbarUndo.show();
+                                }
+                            });
+                } else if(mapMarker.getPositon() == null){
+                    snackbar = Snackbar
+                            .make(coordinatorLayout, getString(R.string.pos_not_loaded), Snackbar.LENGTH_LONG)
+                            .setAction(getString(R.string.retry), new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    mapsFragment.placeMarker();
+                                    //Snackbar snackbarUndo = Snackbar.make(coordinatorLayout, getString(R.string.marker_deleted), Snackbar.LENGTH_SHORT);
+                                    //snackbarUndo.show();
+                                }
+                            });
+                }
+                else {
+                    snackbar = Snackbar
+                            .make(coordinatorLayout, getString(R.string.marker_created), Snackbar.LENGTH_LONG)
+                            .setAction(getString(R.string.undo), new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    mapsFragment.removeMarker();
+                                    //Snackbar snackbarUndo = Snackbar.make(coordinatorLayout, getString(R.string.marker_deleted), Snackbar.LENGTH_SHORT);
+                                    //snackbarUndo.show();
+                                }
+                            });
+                }
                snackbar.show();
                 break;
             case R.id.add_marker_info:

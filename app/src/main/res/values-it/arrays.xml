@@ -8,4 +8,86 @@
         <item>http</item>
         <item>https</item>
     </string-array>
+    <string-array name="usage_culture">
+        <item>pomodoro</item>
+        <item>anguria</item>
+        <item>aglio</item>
+        <item>arato</item>
+        <item>asparago</item>
+        <item>barbabietola</item>
+        <item>brassicacea</item>
+        <item>carciofo</item>
+        <item>carota</item>
+        <item>cereale</item>
+        <item>cipolla</item>
+        <item>finocchio</item>
+        <item>girasole</item>
+        <item>incoltoverde</item>
+        <item>incoltosecco</item>
+        <item>insalata</item>
+        <item>leguminosa generica</item>
+        <item>erba medica</item>
+        <item>veccia</item>
+        <item>favino</item>
+        <item>trifoglio</item>
+        <item>cece</item>
+        <item>lupino</item>
+        <item>pisello</item>
+        <item>fagiolo</item>
+        <item>soia</item>
+        <item>sulla</item>
+        <item>melanzane</item>
+        <item>mais</item>
+        <item>melone</item>
+        <item>patata</item>
+        <item>peperone</item>
+        <item>sedano</item>
+        <item>spinacio</item>
+        <item>tabacco</item>
+        <item>zucchine</item>
+        <item>zucca</item>
+        <item>bosco</item>
+        <item>frutteto</item>
+        <item>uliveto</item>
+        <item>vigneto</item>
+        <item>pacciamato generico</item>
+    </string-array>
+    <string-array name="tomato_type">
+        <item>Tondino</item>
+        <item>Tondo</item>
+        <item>Lungo</item>
+    </string-array>
+    <string-array name="growing_state">
+        <item>Piante appena trapiantate</item>
+        <item>Piante sviluppate e interfile non coperte</item>
+        <item>Piante sviluppate e interfile coperte</item>
+    </string-array>
+    <string-array name="adversity">
+        <item>Acari</item>
+        <item>Alternaria</item>
+        <item>Batteriosi</item>
+        <item>Lepidotteri</item>
+        <item>Orobanche</item>
+        <item>Peronospora</item>
+        <item>Virosi</item>
+    </string-array>
+    <string-array name="adversity_level">
+        <item>Assente</item>
+        <item>Bassa: meno del 5%</item>
+        <item>Media: tra il 5 e 15%</item>
+        <item>Alta: oltre il 15%</item>
+    </string-array>
+    <string-array name="qualitative_element">
+        <item>Bacche con difetti di colorazione</item>
+        <item>Bacche con necrosi da grandine</item>
+        <item>Bacche con scottature da sole</item>
+        <item>Marciumi apicali</item>
+    </string-array>
+    <string-array name="qualitative_level">
+        <item>Assente</item>
+        <item>Bassa: meno del 5%</item>
+        <item>Media: tra il 5 e 15%</item>
+        <item>Alta: oltre il 15%</item>
+    </string-array>
 </resources>
+

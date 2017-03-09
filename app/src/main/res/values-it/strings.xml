@@ -4,6 +4,16 @@
     <string name="button_text">Place Marker</string>
     <string name="action_settings">Settings</string>
     <string name="marker_title">Marker</string>
+    <string name="marker_created">Marker created</string>
+    <string name="marker_deleted">Marker deleted</string>
+    <string name="map_not_loaded">Map Not Loaded</string>
+    <string name="undo">UNDO</string>
+    <string name="retry">Retry</string>
+    <string name="pos_not_loaded">Position Not Loaded</string>
+    <string name="gps_alert_dialog_title">GPS disabled</string>
+    <string name="gps_alert_dialog_text">GPS needed, would you like to enable it? </string>
+    <string name="ok">Ok</string>
+    <string name="cancel">Cancel</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="pref_connectionType">Connection Type</string>
@@ -18,5 +28,25 @@
     <string name="pref_password_default">password</string>
     <string name="pref_zoomLevel">Zoom Level </string>
     <string name="pref_zoomLevel_default">16</string>
-</resources>
+    <!-- Tomap strings-->
+    <string name="latitude">Latitudine</string>
+    <string name="longitude">Longitudine</string>
+    <string name="measure_date">Data Rilievo</string>
+    <string name="usage_culture">Uso/Coltura</string>
+    <string name="tomato_type">Tipo Pomodoro</string>
+    <string name="pacciamato_text_title">Il pomodoro è pacciamato?</string>
+    <string name="pacciamato">Pacciamato</string>
+    <string name="culture_notes">Note Coltura</string>
+    <string name="transplant_date">Data Trapianto</string>
+    <string name="transplant_date_estimated_text">Data Trapianto Certa/Stimata</string>
+    <string name="transplant_date_estimated">Data Certa</string>
+    <string name="growing_state">Stadio Accrescimento</string>
+    <string name="pick_date">Data Raccolta</string>
+    <string name="yeld">Resa</string>
+    <string name="adversity">Avversità</string>
+    <string name="adversity_level">Grado Avversità</string>
+    <string name="qualitative_element">Elemento Qualitativo</string>
+    <string name="qualitative_level">Grado Elemento Qualitativo</string>
+    <string name="screening_notes">Note Rilievo</string>
 
+</resources>

@@ -25,6 +25,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -39,6 +40,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private GoogleMap mMap;
     private LatLng latLng;
     private Marker currLocationMarker;
+    private MapMarker currMapMarker;
     private int markerCount;
     private OnLocationChangedListener onLocationChangedListener;
     private LocationManager locationManager;
@@ -148,6 +150,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         else {
 
             mMap.setMyLocationEnabled(true);
+            mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+            mMap.setPadding(0,(int) getResources().getDimension(R.dimen.padding_gmaps),0,0);
 
             mMap.setOnMapLongClickListener(new OnMapLongClickListener() {
 
@@ -197,34 +201,25 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
         }
-
-
-
-        /*
-            compile 'com.google.android.gms:play-services-location:10.2.0'
-            compile 'com.google.android.gms:play-services-maps:10.2.0'
-            compile 'com.google.android.gms:play-services-ads:10.2.0'
-         */
     }
 
-    public String placeMarker(){
-        String msg;
+    public MapMarker placeMarker(){
+        MapMarker mapMarker = null;
         if(mMap != null && latLng != null) {
             markerCount++;
             MarkerOptions markerOptions = new MarkerOptions();
             markerOptions.position(latLng);
-            markerOptions.title(getString(R.string.marker_title) + " " + markerCount);
+            //markerOptions.title(getString(R.string.marker_title) + " " + markerCount);
+            markerOptions.title(getString(R.string.marker_title));
             markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
             removeMarker();
             currLocationMarker = mMap.addMarker(markerOptions);
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, Settings.getZoomLevel()));
-            msg = getString(R.string.marker_created);
-        } else if (mMap == null) {
-            msg = getString(R.string.map_not_loaded);
-        } else {
-            msg = getString(R.string.pos_not_loaded);
+            mapMarker = new MapMarker(currLocationMarker, latLng, markerOptions);
+        } else if (mMap != null) {
+            mapMarker = new MapMarker(currLocationMarker,null);
         }
-        return msg;
+        return mapMarker;
     }
 
 
@@ -238,6 +233,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
     public interface OnLocationChangedListener {
         public void onLocationChanged(LatLng latLng);
+    }
+
+    private int dp2px(int dp){
+        float scale = getResources().getDisplayMetrics().density;
+        return  (int) (dp * scale + 0.5f);
     }
 
 
@@ -267,7 +267,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         @Override
         public void onLocationChanged(Location location) {
             latLng = new LatLng(location.getLatitude(),location.getLongitude());
-            mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, Settings.getZoomLevel()));
             if(onLocationChangedListener != null) {
                 onLocationChangedListener.onLocationChanged(latLng);

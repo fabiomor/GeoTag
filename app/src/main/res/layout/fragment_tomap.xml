@@ -1,0 +1,247 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:fitsSystemWindows="true">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="56dp"
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp">
+
+
+        <!--  Email Label -->
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/text_view_margin_top"
+            android:layout_marginBottom="@dimen/text_view_margin_bot">
+            <EditText android:id="@+id/input_latitude"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/latitude" />
+        </android.support.design.widget.TextInputLayout>
+
+        <!--  Email Label -->
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/text_view_margin_top"
+            android:layout_marginBottom="@dimen/text_view_margin_bot">
+            <EditText android:id="@+id/input_longitude"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/longitude" />
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+           android:layout_marginTop="@dimen/text_view_margin_top"
+            android:layout_marginBottom="@dimen/text_view_margin_bot">
+            <EditText android:id="@+id/measure_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:focusable="false"
+                android:hint="@string/measure_date" />
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.v7.widget.AppCompatTextView
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:layout_marginTop="@dimen/text_view_margin_top"
+            android:layout_marginBottom="@dimen/text_view_margin_bot"
+           android:id="@+id/usage_culture_text_title"
+           android:text="@string/usage_culture">
+       </android.support.v7.widget.AppCompatTextView>
+        <android.support.v7.widget.AppCompatSpinner
+            android:id="@+id/usage_culture"
+            style="@style/Widget.AppCompat.Spinner"
+            android:layout_marginBottom="@dimen/text_view_margin_bot"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:prompt="@string/usage_culture"
+            android:spinnerMode="dropdown" />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/text_view_margin_top"
+            android:layout_marginBottom="@dimen/text_view_margin_bot"
+            android:id="@+id/tomato_type_text_title"
+            android:text="@string/tomato_type">
+        </android.support.v7.widget.AppCompatTextView>
+        <android.support.v7.widget.AppCompatSpinner
+            android:id="@+id/tomato_type"
+            style="@style/Widget.AppCompat.Spinner"
+            android:layout_marginBottom="@dimen/text_view_margin_bot"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:prompt="@string/tomato_type"
+            android:spinnerMode="dropdown" />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/pacciamato_text_title"
+            android:text="@string/pacciamato_text_title">
+        </android.support.v7.widget.AppCompatTextView>
+        <CheckBox
+            android:id="@+id/pacciamato"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/text_view_margin_bot"
+            android:layout_marginTop="@dimen/text_view_margin_top"
+            android:checked="false"
+            android:button="@null"
+            android:drawableRight="?android:attr/listChoiceIndicatorMultiple"
+            android:text="@string/pacciamato" />
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/text_view_margin_top"
+            android:layout_marginBottom="@dimen/text_view_margin_bot">
+            <EditText android:id="@+id/culture_notes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/culture_notes" />
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/text_view_margin_top"
+            android:layout_marginBottom="@dimen/text_view_margin_bot">
+            <EditText android:id="@+id/transplant_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:focusable="false"
+                android:hint="@string/transplant_date" />
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.v7.widget.AppCompatTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/date_certified_text_title"
+            android:text="@string/transplant_date_estimated_text">
+        </android.support.v7.widget.AppCompatTextView>
+        <CheckBox
+            android:id="@+id/date_certified"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/text_view_margin_bot"
+            android:layout_marginTop="@dimen/text_view_margin_top"
+            android:checked="false"
+            android:button="@null"
+            android:drawableRight="?android:attr/listChoiceIndicatorMultiple"
+            android:text="@string/transplant_date_estimated" />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/text_view_margin_top"
+            android:layout_marginBottom="@dimen/text_view_margin_bot"
+            android:id="@+id/growing_state_text_title"
+            android:text="@string/growing_state">
+        </android.support.v7.widget.AppCompatTextView>
+        <android.support.v7.widget.AppCompatSpinner
+            android:id="@+id/growing_state"
+            style="@style/Widget.AppCompat.Spinner"
+            android:layout_marginBottom="@dimen/text_view_margin_bot"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:prompt="@string/growing_state"
+            android:spinnerMode="dropdown" />
+
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/text_view_margin_top"
+            android:layout_marginBottom="@dimen/text_view_margin_bot">
+            <EditText android:id="@+id/pick_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:focusable="false"
+                android:hint="@string/pick_date" />
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/text_view_margin_top"
+            android:layout_marginBottom="@dimen/text_view_margin_bot">
+            <EditText android:id="@+id/yeld"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal"
+                android:hint="@string/yeld" />
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.v7.widget.AppCompatTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/adversity_text_title"
+            android:text="@string/adversity">
+        </android.support.v7.widget.AppCompatTextView>
+        <android.support.v7.widget.AppCompatSpinner
+            android:id="@+id/adversity"
+            style="@style/Widget.AppCompat.Spinner"
+            android:layout_marginBottom="@dimen/text_view_margin_bot"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:prompt="@string/adversity"
+            android:spinnerMode="dropdown" />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/adversity_level_text_title"
+            android:text="@string/adversity_level">
+        </android.support.v7.widget.AppCompatTextView>
+        <android.support.v7.widget.AppCompatSpinner
+            android:id="@+id/adversity_level"
+            style="@style/Widget.AppCompat.Spinner"
+            android:layout_marginBottom="@dimen/text_view_margin_bot"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:prompt="@string/adversity_level"
+            android:spinnerMode="dropdown" />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/qualitative_element_text_title"
+            android:text="@string/qualitative_element">
+        </android.support.v7.widget.AppCompatTextView>
+        <android.support.v7.widget.AppCompatSpinner
+            android:id="@+id/qualitative_element"
+            style="@style/Widget.AppCompat.Spinner"
+            android:layout_marginBottom="@dimen/text_view_margin_bot"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:prompt="@string/qualitative_element"
+            android:spinnerMode="dropdown" />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/qualitative_level_text_title"
+            android:text="@string/qualitative_level">
+        </android.support.v7.widget.AppCompatTextView>
+        <android.support.v7.widget.AppCompatSpinner
+            android:id="@+id/qualitative_level"
+            style="@style/Widget.AppCompat.Spinner"
+            android:layout_marginBottom="@dimen/text_view_margin_bot"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:prompt="@string/qualitative_level"
+            android:spinnerMode="dropdown" />
+
+    </LinearLayout>
+</ScrollView>

@@ -26,4 +26,25 @@
     <string name="pref_password_default">password</string>
     <string name="pref_zoomLevel">Zoom Level </string>
     <string name="pref_zoomLevel_default">16</string>
+    <!-- Tomap strings-->
+    <string name="latitude">Latitudine</string>
+    <string name="longitude">Longitudine</string>
+    <string name="measure_date">Data Rilievo</string>
+    <string name="usage_culture">Uso/Coltura</string>
+    <string name="tomato_type">Tipo Pomodoro</string>
+    <string name="pacciamato_text_title">Il pomodoro è pacciamato?</string>
+    <string name="pacciamato">Pacciamato</string>
+    <string name="culture_notes">Note Coltura</string>
+    <string name="transplant_date">Data Trapianto</string>
+    <string name="transplant_date_estimated_text">Data Trapianto Certa/Stimata</string>
+    <string name="transplant_date_estimated">Data Certa</string>
+    <string name="growing_state">Stadio Accrescimento</string>
+    <string name="pick_date">Data Raccolta</string>
+    <string name="yeld">Resa</string>
+    <string name="adversity">Avversità</string>
+    <string name="adversity_level">Grado Avversità</string>
+    <string name="qualitative_element">Elemento Qualitativo</string>
+    <string name="qualitative_level">Grado Elemento Qualitativo</string>
+    <string name="screening_notes">Note Rilievo</string>
+
 </resources>
