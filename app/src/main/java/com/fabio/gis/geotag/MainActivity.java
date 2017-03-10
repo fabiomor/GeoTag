@@ -25,7 +25,7 @@ import com.google.android.gms.maps.model.LatLng;
 import java.util.Arrays;
 
 
-public class MainActivity extends AppCompatActivity implements MapsFragment.OnLocationChangedListener,
+public class MainActivity extends AppCompatActivity implements MapsFragment.OnMapLongPressListener,
         View.OnClickListener, NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -34,10 +34,11 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnLo
     private SharedPreferences sharedPreferences;
     private SharedPreferences.OnSharedPreferenceChangeListener sharedPreferenceChangeListener;
 
-    private FloatingActionButton fabMain,fabSecondary;
+    private FloatingActionButton fabSecondary, fabPrimary;
 
     // fragments
     private MapsFragment mapsFragment;
+    private TomapFragment tomapFragment;
     private ChartsFragment chartsFragment;
     private FragmentManager fragmentManager;
 
@@ -75,16 +76,19 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnLo
         mapsFragment = new MapsFragment();
         fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
-                .add(R.id.maincontainer,mapsFragment)
+                .add(R.id.maincontainer,mapsFragment,Constants.MAP_FRAGMENT_TAG)
                 .commit();
+
+        //TODO: adding fragment to backstack?
         
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPreferenceChangeListener = new OnSharedPreferenceChangeListener();
 
-        fabMain = (FloatingActionButton) findViewById(R.id.place_marker);
-        fabMain.setOnClickListener(this);
-        fabSecondary = (FloatingActionButton) findViewById(R.id.add_marker_info);
+        fabPrimary = (FloatingActionButton) findViewById(R.id.primary_action);
+        fabPrimary.setOnClickListener(this);
+        fabSecondary = (FloatingActionButton) findViewById(R.id.secondary_action);
         fabSecondary.setOnClickListener(this);
+
 
 
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout_app_bar_main);
@@ -125,17 +129,15 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnLo
     }
 
     @Override
-    public void onLocationChanged(LatLng latLng) {
-        this.latLng = latLng;
+    public void onMapLongPress(MapMarker mapMarker) {
+        this.mapMarker = mapMarker;
     }
 
     @Override
     public void onClick(View v) {
         Snackbar snackbar;
-        String msg;
-
         switch (v.getId()){
-            case R.id.place_marker:
+            case R.id.secondary_action:
                 mapMarker = mapsFragment.placeMarker();
                 if(mapMarker == null) {
                     snackbar = Snackbar
@@ -174,17 +176,29 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnLo
                 }
                snackbar.show();
                 break;
-            case R.id.add_marker_info:
-                fabMain.setVisibility(View.INVISIBLE);
-                Bundle bundle = new Bundle();
-                bundle.putDouble("latitude", latLng.latitude);
-                bundle.putDouble("longitude", latLng.longitude);
-                TomapFragment tomapFragment = new TomapFragment();
-                tomapFragment.setArguments(bundle);
-                fragmentManager.beginTransaction()
-                        .replace(R.id.maincontainer, tomapFragment)
-                        .commit();
-                break;
+            case R.id.primary_action:
+                Fragment currentFragment = fragmentManager.findFragmentById(R.id.maincontainer);
+                String tag = currentFragment.getTag();
+                switch (tag) {
+                    case Constants.MAP_FRAGMENT_TAG:
+                        fabSecondary.setVisibility(View.INVISIBLE);
+                        Bundle bundle = new Bundle();
+                        bundle.putDouble("latitude", mapMarker.getPositon().latitude);
+                        bundle.putDouble("longitude", mapMarker.getPositon().longitude);
+                        tomapFragment = new TomapFragment();
+                        tomapFragment.setArguments(bundle);
+                        fragmentManager.beginTransaction()
+                                .replace(R.id.maincontainer, tomapFragment, Constants.TOMAP_FRAGMENT_TAG)
+                                .commit();
+                        break;
+                    case Constants.TOMAP_FRAGMENT_TAG:
+                        tomapFragment.buildJson();
+                        break;
+                    default:
+                        Log.e(TAG, "Unhandled FAB fragment tag " + tag);
+                        Snackbar.make(coordinatorLayout, "Not sure what to do...my bad", Snackbar.LENGTH_SHORT).show();
+                        break;
+                }
         }
     }
 

@@ -14,5 +14,10 @@ public interface Constants {
 
     boolean IS_LOGIN_REQUIRED = false;
 
+    String MAP_FRAGMENT_TAG = "map_fragment_tag";
+    String TOMAP_FRAGMENT_TAG = "topmap_fragment_tag";
+    String DATE_FORMAT =  "dd/MM/yyyy";
+
+
     int APPLICATION_PERMISSIONS_REQUEST = 123;
 }

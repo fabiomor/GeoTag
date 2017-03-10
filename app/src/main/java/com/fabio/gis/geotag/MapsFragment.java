@@ -42,18 +42,18 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private Marker currLocationMarker;
     private MapMarker currMapMarker;
     private int markerCount;
-    private OnLocationChangedListener onLocationChangedListener;
+    private OnMapLongPressListener onMapLongPressListener;
     private LocationManager locationManager;
     private LocationListener locationListener;
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnLocationChangedListener) {
-            onLocationChangedListener = (OnLocationChangedListener) context;
+        if (context instanceof OnMapLongPressListener) {
+            onMapLongPressListener = (OnMapLongPressListener) context;
         } else {
             throw new ClassCastException(context.toString()
-                    + " must implemenet MapsFragment.OnLocationChangedListener");
+                    + " must implemenet MapsFragment.OnMapLongPressListener");
         }
     }
 
@@ -113,7 +113,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         super.onDestroyView();
         Log.i(TAG,"onDestroyView");
         if(locationManager != null){ locationManager = null;}
-        if(onLocationChangedListener != null){ onLocationChangedListener = null;}
+        if(onMapLongPressListener != null){ onMapLongPressListener = null;}
         if(locationListener != null) { locationListener = null;}
     }
 
@@ -158,7 +158,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 @Override
                 public void onMapLongClick(LatLng arg0) {
                     latLng = arg0;
-                    if(latLng != null) placeMarker();
+                    if(latLng != null) onMapLongPressListener.onMapLongPress(placeMarker());
                 }
             });
             registerLocationListeners();
@@ -231,13 +231,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     }
 
 
-    public interface OnLocationChangedListener {
-        public void onLocationChanged(LatLng latLng);
-    }
-
-    private int dp2px(int dp){
-        float scale = getResources().getDisplayMetrics().density;
-        return  (int) (dp * scale + 0.5f);
+    public interface OnMapLongPressListener {
+        public void onMapLongPress(MapMarker mapMarker);
     }
 
 
@@ -268,9 +263,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         public void onLocationChanged(Location location) {
             latLng = new LatLng(location.getLatitude(),location.getLongitude());
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, Settings.getZoomLevel()));
-            if(onLocationChangedListener != null) {
-                onLocationChangedListener.onLocationChanged(latLng);
-            }
             /*
             if(currLocationMarker != null){
                currLocationMarker.remove();

@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.AppCompatSpinner;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,9 +17,22 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 
+import java.lang.reflect.Type;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -29,12 +43,15 @@ import butterknife.ButterKnife;
 
 public class TomapFragment extends Fragment implements View.OnClickListener, AdapterView.OnItemSelectedListener{
 
+    private static final String TAG = TomapFragment.class.getSimpleName();
+
     private Context mContext;
     View rootView;
     private Calendar calendar;
     private DatePickerDialog.OnDateSetListener measureDateDialogListener, transplantDateDialogListener, pickDateDialogListener;
     private DatePickerDialog measureDateDialog, transplantDateDialog;
     private LatLng latLng;
+    private DataModel.TomapSample tomapSample;
 
     @Bind(R.id.input_latitude) EditText input_latitude;
     @Bind(R.id.input_longitude) EditText input_longitude;
@@ -179,13 +196,49 @@ public class TomapFragment extends Fragment implements View.OnClickListener, Ada
     }
 
     private String getDateUpdated() {
-        String myFormat = "dd/MM/yy";
-        SimpleDateFormat sdf = new SimpleDateFormat(myFormat);
+        SimpleDateFormat sdf = new SimpleDateFormat(Constants.DATE_FORMAT);
         return sdf.format(calendar.getTime());
     }
 
     private void updateDateLabels(){
         measure_date.setText(getDateUpdated());
+    }
+
+    public void buildJson(){
+        JsonSerializer<Date> ser = new JsonSerializer<Date>() {
+            @Override
+            public JsonElement serialize(Date src, Type typeOfSrc, JsonSerializationContext
+                    context) {
+                return src == null ? null : new JsonPrimitive(src.getTime());
+            }
+        };
+
+        JsonDeserializer<Date> deser = new JsonDeserializer<Date>() {
+            @Override
+            public Date deserialize(JsonElement json, Type typeOfT,
+                                    JsonDeserializationContext context) throws JsonParseException {
+                return json == null ? null : new Date(json.getAsLong());
+            }
+        };
+
+        GsonBuilder builder = new GsonBuilder()
+                .registerTypeAdapter(Date.class, ser)
+                .registerTypeAdapter(Date.class, deser);
+        Gson gson = builder.create();
+        SimpleDateFormat sdf = new SimpleDateFormat(Constants.DATE_FORMAT);
+        DataModel.TomapSample tomapSample = new DataModel.TomapSample();
+        tomapSample.setLat(Float.parseFloat(input_latitude.getText().toString()));
+        tomapSample.setLon(Float.parseFloat(input_longitude.getText().toString()));
+        try {
+            String date = measure_date.getText().toString();
+            tomapSample.setData_ora_rilievo((sdf.parse(measure_date.getText().toString())));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        // TODO: data handler for gson
+
+        String json = gson.toJson(tomapSample);
+        Log.i(TAG,json);
     }
 
     @Override
