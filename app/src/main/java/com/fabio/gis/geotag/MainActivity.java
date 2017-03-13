@@ -77,6 +77,7 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnMa
         fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
                 .add(R.id.maincontainer,mapsFragment,Constants.MAP_FRAGMENT_TAG)
+                .addToBackStack(null)
                 .commit();
 
         //TODO: adding fragment to backstack?
@@ -189,6 +190,7 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnMa
                         tomapFragment.setArguments(bundle);
                         fragmentManager.beginTransaction()
                                 .replace(R.id.maincontainer, tomapFragment, Constants.TOMAP_FRAGMENT_TAG)
+                                .addToBackStack(Constants.MAP_FRAGMENT_TAG)
                                 .commit();
                         break;
                     case Constants.TOMAP_FRAGMENT_TAG:

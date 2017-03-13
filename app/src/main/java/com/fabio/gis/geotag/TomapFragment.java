@@ -2,6 +2,7 @@ package com.fabio.gis.geotag;
 
 import android.app.DatePickerDialog;
 import android.content.Context;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -18,21 +19,13 @@ import android.widget.EditText;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
 
-import java.lang.reflect.Type;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -49,7 +42,7 @@ public class TomapFragment extends Fragment implements View.OnClickListener, Ada
     View rootView;
     private Calendar calendar;
     private DatePickerDialog.OnDateSetListener measureDateDialogListener, transplantDateDialogListener, pickDateDialogListener;
-    private DatePickerDialog measureDateDialog, transplantDateDialog;
+    private HashMap<Integer,String> adversitySpinnerEntries, qualitativeSpinnerEntries;
     private LatLng latLng;
     private DataModel.TomapSample tomapSample;
 
@@ -99,6 +92,7 @@ public class TomapFragment extends Fragment implements View.OnClickListener, Ada
     @Override
     public void onStart() {
         super.onStart();
+        tomapSample = new DataModel.TomapSample();
         initWidgets();
         setListeners();
     }
@@ -205,41 +199,46 @@ public class TomapFragment extends Fragment implements View.OnClickListener, Ada
     }
 
     public void buildJson(){
-        JsonSerializer<Date> ser = new JsonSerializer<Date>() {
-            @Override
-            public JsonElement serialize(Date src, Type typeOfSrc, JsonSerializationContext
-                    context) {
-                return src == null ? null : new JsonPrimitive(src.getTime());
-            }
-        };
-
-        JsonDeserializer<Date> deser = new JsonDeserializer<Date>() {
-            @Override
-            public Date deserialize(JsonElement json, Type typeOfT,
-                                    JsonDeserializationContext context) throws JsonParseException {
-                return json == null ? null : new Date(json.getAsLong());
-            }
-        };
-
-        GsonBuilder builder = new GsonBuilder()
-                .registerTypeAdapter(Date.class, ser)
-                .registerTypeAdapter(Date.class, deser);
-        Gson gson = builder.create();
         SimpleDateFormat sdf = new SimpleDateFormat(Constants.DATE_FORMAT);
-        DataModel.TomapSample tomapSample = new DataModel.TomapSample();
-        tomapSample.setLat(Float.parseFloat(input_latitude.getText().toString()));
-        tomapSample.setLon(Float.parseFloat(input_longitude.getText().toString()));
+        //getSpinnerValues();
         try {
-            String date = measure_date.getText().toString();
+            tomapSample.setLat(Double.parseDouble(input_latitude.getText().toString()));
+            tomapSample.setLon(Double.parseDouble(input_longitude.getText().toString()));
             tomapSample.setData_ora_rilievo((sdf.parse(measure_date.getText().toString())));
+            // TODO: 13/03/2017 aggiungere interfaccia con db per avere il rispettivo dell id
+            tomapSample.setId_uso(30);
+            tomapSample.setPacciamato(pacciamato.isEnabled());
+            tomapSample.setNote_coltura(culture_notes.getText().toString());
+            if(!transplant_date.getText().toString().equals("")) tomapSample.setData_trapianto(sdf.parse(transplant_date.getText().toString()));
+            tomapSample.setData_trapianto_certezza(date_certified.isEnabled() ? getString(R.string.yes) : getString(R.string.no_date_estimated));
+            if(!pick_date.getText().toString().equals("")) tomapSample.setData_raccolta(sdf.parse(pick_date.getText().toString()));
+            if(!yeld.getText().toString().equals("")) tomapSample.setResa(Double.parseDouble(yeld.getText().toString()));
+            //tomapSample.setGrado_avversita();
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        // TODO: data handler for gson
-
+        Gson gson = JsonHandler.getInstance()
+                        .getGsonBuilder()
+                        .create();
         String json = gson.toJson(tomapSample);
         Log.i(TAG,json);
     }
+
+    // TODO: 13/03/2017 da rimuovere getspinnervalues? 
+    /*
+    private void getSpinnerValues(){
+        int i;
+        Resources res = getResources();
+        String[] stringArray = res.getStringArray(R.array.adversity_level);
+        for (i = 0; i < stringArray.length; i++) {
+            adversitySpinnerEntries.put(i,stringArray[i]);
+        }
+        stringArray = res.getStringArray(R.array.qualitative_level);
+        for (i = 0; i < stringArray.length; i++) {
+            qualitativeSpinnerEntries.put(i,stringArray[i]);
+        }
+    }
+    */
 
     @Override
     public void onClick(View v) {
@@ -264,21 +263,29 @@ public class TomapFragment extends Fragment implements View.OnClickListener, Ada
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        Resources res = getResources();;
         switch (parent.getId()){
             case R.id.usage_culture:
-                String culture = parent.getItemAtPosition(position).toString();
+                tomapSample.setCod_uso(30); //= parent.getItemAtPosition(position).toString();
                 break;
             case R.id.tomato_type:
+                tomapSample.setTipo_pomodoro(parent.getItemAtPosition(position).toString());
                 break;
             case R.id.growing_state:
+                // TODO: 13/03/2017 rivedere inserimento entry nel db tomap: inserire stringhe anziche id
+                tomapSample.setId_stadio_accresc(position);
                 break;
             case R.id.adversity:
+                tomapSample.setId_avversita(position);
                 break;
             case R.id.adversity_level:
+                tomapSample.setGrado_avversita(res.getStringArray(R.array.adversity_level_label)[position]);
                 break;
             case R.id.qualitative_element:
+                tomapSample.setId_elemento_qualitativo(position);
                 break;
             case R.id.qualitative_level:
+                tomapSample.setGrado_elemento_qualitativo(res.getStringArray(R.array.qualitative_level_label)[position]);
                 break;
         }
     }
