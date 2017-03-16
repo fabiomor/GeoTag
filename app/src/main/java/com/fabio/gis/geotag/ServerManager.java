@@ -2,8 +2,11 @@ package com.fabio.gis.geotag;
 
 import android.util.Log;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 
 /**
@@ -31,6 +34,31 @@ public class ServerManager {
             Log.e(TAG, "multipart post error " + e + "(" + urlString + ")");
         }
         return responseCode;
+    }
+
+    public static HttpURLConnection getLoginConnection(String urlString) {
+        URL url = null;
+        HttpURLConnection conn = null;
+        try {
+            url = new URL(urlString);
+            conn = (HttpURLConnection) url.openConnection();
+            conn.setReadTimeout(READ_TIMEOUT);
+            conn.setConnectTimeout(CONNECT_TIMEOUT);
+            Log.i(TAG,"connecting to " +url);
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("Accept", "application/json");
+            conn.connect();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            Log.e(TAG,e.toString());
+        } catch (ProtocolException e) {
+            e.printStackTrace();
+            Log.e(TAG,e.toString());
+        } catch (IOException e) {
+            Log.e(TAG,e.toString());
+            e.printStackTrace();
+        }
+        return conn;
     }
 
 }

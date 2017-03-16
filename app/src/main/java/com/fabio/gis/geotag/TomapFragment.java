@@ -2,8 +2,10 @@ package com.fabio.gis.geotag;
 
 import android.app.DatePickerDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.AppCompatSpinner;
@@ -41,6 +43,7 @@ public class TomapFragment extends Fragment implements View.OnClickListener, Ada
     private Context mContext;
     View rootView;
     private Calendar calendar;
+    private SharedPreferences sharedPreferences;
     private DatePickerDialog.OnDateSetListener measureDateDialogListener, transplantDateDialogListener, pickDateDialogListener;
     private HashMap<Integer,String> adversitySpinnerEntries, qualitativeSpinnerEntries;
     private LatLng latLng;
@@ -67,7 +70,8 @@ public class TomapFragment extends Fragment implements View.OnClickListener, Ada
     @Override
     public void onAttach(Context context){
         super.onAttach (context);
-        mContext = context;
+        mContext = context.getApplicationContext();
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
     }
 
     @Override
@@ -96,6 +100,8 @@ public class TomapFragment extends Fragment implements View.OnClickListener, Ada
         initWidgets();
         setListeners();
     }
+
+
 
     private void initWidgets(){
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(mContext,
@@ -202,6 +208,7 @@ public class TomapFragment extends Fragment implements View.OnClickListener, Ada
         SimpleDateFormat sdf = new SimpleDateFormat(Constants.DATE_FORMAT);
         //getSpinnerValues();
         try {
+            tomapSample.setId_utente_rilevatore(sharedPreferences.getInt(Constants.TOMAP_ID_UTENTE, 0));
             tomapSample.setLat(Double.parseDouble(input_latitude.getText().toString()));
             tomapSample.setLon(Double.parseDouble(input_longitude.getText().toString()));
             tomapSample.setData_ora_rilievo((sdf.parse(measure_date.getText().toString())));

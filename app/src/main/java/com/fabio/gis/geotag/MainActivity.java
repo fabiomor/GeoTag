@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnMa
         fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
                 .add(R.id.maincontainer,mapsFragment,Constants.MAP_FRAGMENT_TAG)
-                .addToBackStack(null)
+                //.addToBackStack(null)
                 .commit();
 
         //TODO: adding fragment to backstack?
@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnMa
 
 
 
-        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout_app_bar_main);
+        coordinatorLayout = findViewById(R.id.coordinator_layout_app_bar_main);
 
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -190,7 +190,7 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnMa
                         tomapFragment.setArguments(bundle);
                         fragmentManager.beginTransaction()
                                 .replace(R.id.maincontainer, tomapFragment, Constants.TOMAP_FRAGMENT_TAG)
-                                .addToBackStack(Constants.MAP_FRAGMENT_TAG)
+                                //.addToBackStack(Constants.MAP_FRAGMENT_TAG)
                                 .commit();
                         break;
                     case Constants.TOMAP_FRAGMENT_TAG:
@@ -234,6 +234,7 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnMa
             drawer.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
+            moveTaskToBack(true);
         }
     }
 

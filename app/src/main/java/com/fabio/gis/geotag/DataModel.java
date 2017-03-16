@@ -15,20 +15,22 @@ public class DataModel {
         // autocompletate
         @SerializedName("terrasystem")
         private Boolean terrasystem;
-        @SerializedName("id_utente_rilevatore")
+        @SerializedName("id_utente")
         private Integer id_utente_rilevatore;
-        @SerializedName("id_gruppo_rilevatori")
+        @SerializedName("id_gruppo")
         private Integer id_gruppo_rilevatori;
+        @SerializedName("id_squadra")
+        private Integer id_squadra;
+        @SerializedName("cognome")
+        private String cognome_rilevatore;
         private Date data_ora_invio;
 
 
+
         // non utilizzate al momento
-        @SerializedName("id_squadra")
-        private Integer id_squadra;
         private String cod_punto;
         private String cod_transetto;
         private String nome_varieta;
-        private String cognome_rilevatore;
         private String nome_area_tomap;
         private String azienda_rilevata;
         @SerializedName("x_stima")

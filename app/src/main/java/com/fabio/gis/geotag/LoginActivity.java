@@ -2,6 +2,7 @@ package com.fabio.gis.geotag;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -11,6 +12,17 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.lang.reflect.Type;
+import java.net.HttpURLConnection;
+import java.util.Collection;
+import java.util.Iterator;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -22,6 +34,7 @@ import butterknife.ButterKnife;
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
     private static final int REQUEST_SIGNUP = 0;
+    private SharedPreferences sharedPreferences;
     private int responseCode;
 
     @Bind(R.id.input_email) EditText _emailText;
@@ -33,6 +46,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         ButterKnife.bind(this);
+        sharedPreferences = getApplicationContext().getSharedPreferences(Constants.SHARED_PREFERENCES_NAME, MODE_PRIVATE);
 
         _loginButton.setOnClickListener(new View.OnClickListener() {
 
@@ -70,7 +84,9 @@ public class LoginActivity extends AppCompatActivity {
         String email = _emailText.getText().toString();
         String password = _passwordText.getText().toString();
 
-        new LoginValidatorTask().execute("http://5.249.152.25:3000/api/v1/users?username=" + email + "&pwd=" + password);
+        // TODO: 16/03/2017 opzione rimani registrato
+
+        new LoginValidatorTask().execute(Constants.SERVER_PATH + "/" + Constants.TOMAP_API + "/users?username=" + email + "&pwd=" + password);
     }
 
 
@@ -78,7 +94,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_SIGNUP) {
             if (resultCode == RESULT_OK) {
-                // TODO: Implement successful signup logic here
+                //sharedPreferences.edit().putString();
                 // By default we just finish the Activity and log them in automatically
                 this.finish();
             }
@@ -97,7 +113,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void onLoginFailed() {
-        Toast.makeText(getBaseContext(), "Login failed", Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(), "Login failed", Toast.LENGTH_LONG).show();
 
         _loginButton.setEnabled(true);
     }
@@ -108,15 +124,16 @@ public class LoginActivity extends AppCompatActivity {
         String email = _emailText.getText().toString();
         String password = _passwordText.getText().toString();
 
-        if (email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+        //if (email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+        if (email.isEmpty()) {
             _emailText.setError("enter a valid email address");
             valid = false;
         } else {
             _emailText.setError(null);
         }
 
-        if (password.isEmpty() || password.length() < 4 || password.length() > 10) {
-            _passwordText.setError("between 4 and 10 alphanumeric characters");
+        if (password.isEmpty() || password.length() < 2 || password.length() > 10) {
+            _passwordText.setError("between 2 and 10 alphanumeric characters");
             valid = false;
         } else {
             _passwordText.setError(null);
@@ -143,8 +160,39 @@ public class LoginActivity extends AppCompatActivity {
 
         protected Integer doInBackground(String... urls) {
             try {
-                if(ServerManager.httpGet(urls[0]) == 200)
+                HttpURLConnection connection = ServerManager.getLoginConnection(urls[0]);
+                DataModel.TomapSample tomapSample = null;
+                BufferedReader br = null;
+                String line;
+                StringBuilder json = new StringBuilder();
+                if(connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                    br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                    while ((line = br.readLine()) != null) {
+                        json.append(line);
+                    }
+                    Gson gson = JsonHandler.getInstance()
+                            .getGsonBuilder()
+                            .create();
+                    Type collectionType = new TypeToken<Collection<DataModel.TomapSample>>(){}.getType();
+                    Collection<DataModel.TomapSample> enums = gson.fromJson(json.toString(), collectionType);
+                    Iterator<DataModel.TomapSample> it = enums.iterator();
+                    if(it.hasNext()){
+                        tomapSample = it.next();
+                        if(tomapSample.getId_utente_rilevatore() != null)
+                            sharedPreferences.edit().putString(Constants.TOMAP_ID_UTENTE,String.valueOf(tomapSample.getId_utente_rilevatore())).apply();
+                        if(tomapSample.getCognome_rilevatore() != null)
+                            sharedPreferences.edit().putString(Constants.TOMAP_GOGNOME,tomapSample.getCognome_rilevatore()).apply();
+                        if(tomapSample.getId_gruppo_rilevatori() != null)
+                            sharedPreferences.edit().putString(Constants.TOMAP_ID_GRUPPO,String.valueOf(tomapSample.getId_gruppo_rilevatori())).apply();
+                        if(tomapSample.getId_squadra() != null)
+                            sharedPreferences.edit().putString(Constants.TOMAP_ID_SQUADRA,String.valueOf(tomapSample.getId_squadra())).apply();
+                    }
+                    else{
+                        // TODO: 16/03/2017 lista utenti vuota ma login passato, come gestirlo?
+                    }
+                    // TODO: 15/03/2017 inserire i dati statici nelle shared preferences
                     return RESULT_OK;
+                }
             } catch (Exception e) {
                 Log.e(TAG,e.toString());
             }
