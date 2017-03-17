@@ -1,12 +1,15 @@
 package com.fabio.gis.geotag;
 
 import android.app.DatePickerDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.AppCompatSpinner;
 import android.util.Log;
@@ -21,11 +24,20 @@ import android.widget.EditText;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.lang.reflect.Type;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 
@@ -49,6 +61,9 @@ public class TomapFragment extends Fragment implements View.OnClickListener, Ada
     private LatLng latLng;
     private DataModel.TomapSample tomapSample;
 
+    //listeners
+    private OnTomapSampleSentListener onTomapSampleSentListener;
+
     @Bind(R.id.input_latitude) EditText input_latitude;
     @Bind(R.id.input_longitude) EditText input_longitude;
     @Bind(R.id.measure_date) EditText measure_date;
@@ -67,11 +82,11 @@ public class TomapFragment extends Fragment implements View.OnClickListener, Ada
     @Bind(R.id.qualitative_level) AppCompatSpinner qualitative_level;
 
 
+
     @Override
     public void onAttach(Context context){
         super.onAttach (context);
-        mContext = context.getApplicationContext();
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+
     }
 
     @Override
@@ -85,6 +100,7 @@ public class TomapFragment extends Fragment implements View.OnClickListener, Ada
         rootView = inflater.inflate(R.layout.fragment_tomap, container, false);
         ButterKnife.bind(this, rootView);
         latLng = new LatLng(getArguments().getDouble("latitude"),getArguments().getDouble("longitude"));
+        mContext = getContext();
         return rootView;
     }
 
@@ -97,11 +113,21 @@ public class TomapFragment extends Fragment implements View.OnClickListener, Ada
     public void onStart() {
         super.onStart();
         tomapSample = new DataModel.TomapSample();
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+        if (mContext instanceof OnTomapSampleSentListener) {
+            onTomapSampleSentListener = (OnTomapSampleSentListener) mContext;
+        } else {
+            throw new ClassCastException(mContext.toString()
+                    + " must implemenet " + TAG + ".OnMapLongPressListener");
+        }
         initWidgets();
         setListeners();
     }
 
-
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
 
     private void initWidgets(){
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(mContext,
@@ -209,6 +235,9 @@ public class TomapFragment extends Fragment implements View.OnClickListener, Ada
         //getSpinnerValues();
         try {
             tomapSample.setId_utente_rilevatore(sharedPreferences.getInt(Constants.TOMAP_ID_UTENTE, 0));
+            tomapSample.setId_gruppo_rilevatori(sharedPreferences.getInt(Constants.TOMAP_ID_GRUPPO, 0));
+            tomapSample.setCognome_rilevatore(sharedPreferences.getString(Constants.TOMAP_GOGNOME, ""));
+            tomapSample.setId_squadra(sharedPreferences.getInt(Constants.TOMAP_ID_SQUADRA, 0));
             tomapSample.setLat(Double.parseDouble(input_latitude.getText().toString()));
             tomapSample.setLon(Double.parseDouble(input_longitude.getText().toString()));
             tomapSample.setData_ora_rilievo((sdf.parse(measure_date.getText().toString())));
@@ -228,7 +257,7 @@ public class TomapFragment extends Fragment implements View.OnClickListener, Ada
                         .getGsonBuilder()
                         .create();
         String json = gson.toJson(tomapSample);
-        Log.i(TAG,json);
+        new TomapSampleHttpPostTask(json).execute(Constants.SERVER_PATH + "/" + Constants.TOMAP_SAMPLE_INSERT_API_PATH, json);
     }
 
     // TODO: 13/03/2017 da rimuovere getspinnervalues? 
@@ -299,7 +328,84 @@ public class TomapFragment extends Fragment implements View.OnClickListener, Ada
 
 
     @Override
-    public void onNothingSelected(AdapterView<?> parent) {
+    public void onNothingSelected(AdapterView<?> parent) {    }
 
+    private void onTomapSamplePostSucced() {
+        onTomapSampleSentListener.onTomapSampleSent();
+        Log.i(TAG, getString(R.string.tomap_sample_inserted));
+    }
+
+    private void onTomapSamplePostFail() {
+
+    }
+
+    // interfaces
+    public interface OnTomapSampleSentListener{
+        public void onTomapSampleSent();
+    }
+
+    class TomapSampleHttpPostTask extends AsyncTask<String, Void, Integer> {
+
+
+        private static final int RESULT_OK = 0;
+        private static final int RESULT_FAILED = 1;
+        private ProgressDialog progressDialog;
+        private String payload;
+
+        public TomapSampleHttpPostTask(String payload) {
+            super();
+            this.payload = payload;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog = new ProgressDialog(getActivity(), R.style.AppTheme_Dark_Dialog);
+            progressDialog.setIndeterminate(true);
+            progressDialog.setMessage(getString(R.string.posting_sample_dialog));
+            progressDialog.show();
+        }
+
+        protected Integer doInBackground(String... urls) {
+            try {
+                HttpURLConnection connection = ServerManager.httpPostJson(urls[0], this.payload);
+                DataModel.TomapSample tomapSample = null;
+                BufferedReader br = null;
+                String line;
+                StringBuilder json = new StringBuilder();
+                if(connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                    br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                    while ((line = br.readLine()) != null) {
+                        json.append(line);
+                    }
+                    Gson gson = JsonHandler.getInstance()
+                            .getGsonBuilder()
+                            .create();
+                    Type collectionType = new TypeToken<Collection<DataModel.TomapSample>>(){}.getType();
+                    Collection<DataModel.TomapSample> enums = gson.fromJson(json.toString(), collectionType);
+                    Iterator<DataModel.TomapSample> it = enums.iterator();
+                    // TODO: 17/03/2017 lettura dati risposta alla post
+                    return RESULT_OK;
+                }
+            } catch (Exception e) {
+                Log.e(TAG,e.toString());
+            }
+            return RESULT_FAILED;
+        }
+
+        protected void onPostExecute(Integer resultCode) {
+            switch (resultCode) {
+                case  RESULT_OK:
+                    progressDialog.dismiss();
+                    onTomapSamplePostSucced();
+                    break;
+                case RESULT_FAILED:
+                    progressDialog.dismiss();
+                    onTomapSamplePostFail();
+                    break;
+                default:
+                    // Do nothing..
+            }
+        }
     }
 }

@@ -32,7 +32,7 @@ import butterknife.ButterKnife;
  */
 
 public class LoginActivity extends AppCompatActivity {
-    private static final String TAG = "LoginActivity";
+    private static final String TAG =  LoginActivity.class.getSimpleName();
     private static final int REQUEST_SIGNUP = 0;
     private SharedPreferences sharedPreferences;
     private int responseCode;
@@ -154,7 +154,7 @@ public class LoginActivity extends AppCompatActivity {
             super.onPreExecute();
             progressDialog = new ProgressDialog(LoginActivity.this, R.style.AppTheme_Dark_Dialog);
             progressDialog.setIndeterminate(true);
-            progressDialog.setMessage("Authenticating...");
+            progressDialog.setMessage(getString(R.string.authenticating_dialog));
             progressDialog.show();
         }
 

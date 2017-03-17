@@ -37,6 +37,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private static final String TAG = MapsFragment.class.getSimpleName();
 
     private Context mContext;
+    private View rootView;
     private GoogleMap mMap;
     private LatLng latLng;
     private Marker currLocationMarker;
@@ -49,12 +50,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnMapLongPressListener) {
-            onMapLongPressListener = (OnMapLongPressListener) context;
-        } else {
-            throw new ClassCastException(context.toString()
-                    + " must implemenet MapsFragment.OnMapLongPressListener");
-        }
     }
 
 
@@ -69,7 +64,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_maps, container, false);
+        if(rootView == null) {
+            rootView = inflater.inflate(R.layout.fragment_maps, container, false);
+        }
         SupportMapFragment mMapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mMapFragment.getMapAsync(this);
         mContext = getActivity();
@@ -85,6 +82,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onStart() {
         super.onStart();
+        init();
         Log.i(TAG,"onStart");
     }
 
@@ -195,11 +193,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         locationListener = new DeviceLocationListener();
 
         if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 100, 100, locationListener);
         }
 
         if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, 100, locationListener);
         }
     }
 
@@ -227,6 +225,16 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     public void removeMarker(){
         if(currLocationMarker != null) {
             currLocationMarker.remove();
+        }
+    }
+
+    private void init(){
+        removeMarker();
+        if (mContext instanceof OnMapLongPressListener) {
+            onMapLongPressListener = (OnMapLongPressListener) mContext;
+        } else {
+            throw new ClassCastException(mContext.toString()
+                    + " must implemenet MapsFragment.OnMapLongPressListener");
         }
     }
 

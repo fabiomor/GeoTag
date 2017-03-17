@@ -26,6 +26,7 @@ public interface Constants {
     //String SERVER_PATH = "http://5.249.152.25:3000";
     String SERVER_PATH = "http://5.249.152.25:3000";
     String TOMAP_API = "api/v1/tomap";
+    String TOMAP_SAMPLE_INSERT_API_PATH = TOMAP_API + "/" + "sample";
 
     int APPLICATION_PERMISSIONS_REQUEST = 123;
 }

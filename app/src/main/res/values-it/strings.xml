@@ -12,6 +12,8 @@
     <string name="pos_not_loaded">Position Not Loaded</string>
     <string name="gps_alert_dialog_title">GPS disabled</string>
     <string name="gps_alert_dialog_text">GPS needed, would you like to enable it? </string>
+    <string name="authenticating_dialog">Autenticazione...</string>
+    <string name="posting_sample_dialog">Invio dati...</string>
     <string name="ok">Ok</string>
     <string name="yes">Si</string>
     <string name="no_date_estimated">No, la data è stimata</string>
@@ -30,6 +32,7 @@
     <string name="pref_password_default">password</string>
     <string name="pref_zoomLevel">Zoom Level </string>
     <string name="pref_zoomLevel_default">16</string>
+    <string name="tomap_sample_inserted">Campione inserito</string>
     <!-- Tomap strings-->
     <string name="latitude">Latitudine</string>
     <string name="longitude">Longitudine</string>

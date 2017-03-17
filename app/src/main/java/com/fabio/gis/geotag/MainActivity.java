@@ -26,6 +26,7 @@ import java.util.Arrays;
 
 
 public class MainActivity extends AppCompatActivity implements MapsFragment.OnMapLongPressListener,
+        TomapFragment.OnTomapSampleSentListener,
         View.OnClickListener, NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -77,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnMa
         fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
                 .add(R.id.maincontainer,mapsFragment,Constants.MAP_FRAGMENT_TAG)
-                //.addToBackStack(null)
+                //.addToBackStack(Constants.MAP_FRAGMENT_TAG)
                 .commit();
 
         //TODO: adding fragment to backstack?
@@ -127,11 +128,6 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnMa
     @Override
     protected void onDestroy() {
         super.onDestroy();
-    }
-
-    @Override
-    public void onMapLongPress(MapMarker mapMarker) {
-        this.mapMarker = mapMarker;
     }
 
     @Override
@@ -188,16 +184,22 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnMa
                         bundle.putDouble("longitude", mapMarker.getPositon().longitude);
                         tomapFragment = new TomapFragment();
                         tomapFragment.setArguments(bundle);
+                        /*
+                        fragmentManager.beginTransaction()
+                                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
+                                .hide(mapsFragment)
+                                .commit();
+                        */
                         fragmentManager.beginTransaction()
                                 .replace(R.id.maincontainer, tomapFragment, Constants.TOMAP_FRAGMENT_TAG)
-                                //.addToBackStack(Constants.MAP_FRAGMENT_TAG)
+                                .addToBackStack(Constants.TOMAP_FRAGMENT_TAG)
                                 .commit();
                         break;
                     case Constants.TOMAP_FRAGMENT_TAG:
                         tomapFragment.buildJson();
                         break;
                     default:
-                        Log.e(TAG, "Unhandled FAB fragment tag " + tag);
+                        Log.e(TAG, "Unhandled FAB fragment tag ");
                         Snackbar.make(coordinatorLayout, "Not sure what to do...my bad", Snackbar.LENGTH_SHORT).show();
                         break;
                 }
@@ -232,9 +234,17 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnMa
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.activity_main);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else {
+        } else if (fragmentManager.getBackStackEntryCount() > 0){
+            //fragmentManager.popBackStack(Constants.TOMAP_FRAGMENT_TAG, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            fragmentManager.popBackStack();
+            String tag = fragmentManager.findFragmentById(R.id.maincontainer).getTag();
+            switch (tag) {
+                case Constants.TOMAP_FRAGMENT_TAG:
+                    fabSecondary.setVisibility(View.VISIBLE);
+            }
+        }
+        else {
             super.onBackPressed();
-            moveTaskToBack(true);
         }
     }
 
@@ -312,8 +322,32 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnMa
             default:
         }
     }
-    
+
+
+
     //listeners
+    @Override
+    public void onMapLongPress(MapMarker mapMarker) {
+        this.mapMarker = mapMarker;
+    }
+
+    @Override
+    public void onTomapSampleSent() {
+        Snackbar  snackbar = Snackbar
+                .make(findViewById(R.id.coordinator_layout_app_bar_main), getString(R.string.tomap_sample_inserted), Snackbar.LENGTH_LONG);
+        snackbar.show();
+        int count = fragmentManager.getBackStackEntryCount();
+        /*
+        fragmentManager.beginTransaction()
+                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
+                .show(mapsFragment)
+                .commit();
+        */
+        fragmentManager.popBackStack();
+        fabSecondary.setVisibility(View.VISIBLE);
+    }
+
+
     private class OnSharedPreferenceChangeListener implements SharedPreferences.OnSharedPreferenceChangeListener {
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
