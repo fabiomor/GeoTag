@@ -14,6 +14,7 @@
     <string name="gps_alert_dialog_text">GPS needed, would you like to enable it? </string>
     <string name="authenticating_dialog">Autenticazione...</string>
     <string name="posting_sample_dialog">Invio dati...</string>
+    <string name="downloading_data_dialog">Download dati...</string>
     <string name="ok">Ok</string>
     <string name="yes">Si</string>
     <string name="no_date_estimated">No, la data è stimata</string>

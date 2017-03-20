@@ -38,7 +38,7 @@ public class ServerManager {
         return responseCode;
     }
 
-    public static HttpURLConnection getLoginConnection(String urlString) {
+    public static HttpURLConnection httpGetConnection(String urlString) {
         URL url = null;
         HttpURLConnection conn = null;
         try {

@@ -10,13 +10,11 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
@@ -160,7 +158,7 @@ public class LoginActivity extends AppCompatActivity {
 
         protected Integer doInBackground(String... urls) {
             try {
-                HttpURLConnection connection = ServerManager.getLoginConnection(urls[0]);
+                HttpURLConnection connection = ServerManager.httpGetConnection(urls[0]);
                 DataModel.TomapSample tomapSample = null;
                 BufferedReader br = null;
                 String line;
@@ -190,7 +188,6 @@ public class LoginActivity extends AppCompatActivity {
                     else{
                         // TODO: 16/03/2017 lista utenti vuota ma login passato, come gestirlo?
                     }
-                    // TODO: 15/03/2017 inserire i dati statici nelle shared preferences
                     return RESULT_OK;
                 }
             } catch (Exception e) {

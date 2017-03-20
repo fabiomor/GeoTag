@@ -1,5 +1,6 @@
 package com.fabio.gis.geotag;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -7,7 +8,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.nfc.Tag;
+import android.os.AsyncTask;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -18,18 +19,24 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.lang.reflect.Type;
+import java.net.HttpURLConnection;
+import java.util.Collection;
+import java.util.Iterator;
 
 public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
@@ -164,8 +171,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
             if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
                 promptGps();
             }
-
-
             //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, ZOOM_LEVEL));
             //buildGoogleApiClient();
             //mGoogleApiClient.connect();
@@ -301,6 +306,66 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         public void onProviderDisabled(String s) {
             Log.i(TAG,"Provider Disabled");
 
+        }
+    }
+
+    class DownloadDataTask  extends AsyncTask<String, Void, Integer> {
+
+
+        private static final int RESULT_OK = 0;
+        private static final int RESULT_FAILED = 1;
+        private ProgressDialog progressDialog;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog = new ProgressDialog(getActivity(), R.style.AppTheme_Dark_Dialog);
+            progressDialog.setIndeterminate(true);
+            progressDialog.setMessage(getString(R.string.authenticating_dialog));
+            progressDialog.show();
+        }
+
+        protected Integer doInBackground(String... urls) {
+            try {
+                HttpURLConnection connection = ServerManager.httpGetConnection(urls[0]);
+                DataModel.TomapSample tomapSample = null;
+                BufferedReader br = null;
+                String line;
+                StringBuilder json = new StringBuilder();
+                if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                    br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                    while ((line = br.readLine()) != null) {
+                        json.append(line);
+                    }
+                    Gson gson = JsonHandler.getInstance()
+                            .getGsonBuilder()
+                            .create();
+                    Type collectionType = new TypeToken<Collection<DataModel.TomapSample>>() {
+                    }.getType();
+                    Collection<DataModel.TomapSample> enums = gson.fromJson(json.toString(), collectionType);
+                    Iterator<DataModel.TomapSample> it = enums.iterator();
+
+                    return RESULT_OK;
+                }
+            } catch (Exception e) {
+                Log.e(TAG, e.toString());
+            }
+            return RESULT_FAILED;
+        }
+
+        protected void onPostExecute(Integer resultCode) {
+            switch (resultCode) {
+                case RESULT_OK:
+                    progressDialog.dismiss();
+                    // onLoginSuccess();
+                    break;
+                case RESULT_FAILED:
+                    progressDialog.dismiss();
+                    //onLoginFailed();
+                    break;
+                default:
+                    // Do nothing..
+            }
         }
     }
 }
