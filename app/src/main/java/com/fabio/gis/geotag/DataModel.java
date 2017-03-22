@@ -47,6 +47,8 @@ public class DataModel {
 
 
         // utilizzate
+        @SerializedName("gid")
+        private Long gid;
         @SerializedName("lat")
         private Double lat;
         @SerializedName("lon")
@@ -61,6 +63,24 @@ public class DataModel {
         private String data_trapianto_certezza;
         @SerializedName("id_stadio_accresc")
         private Integer id_stadio_accresc;
+        private Date data_raccolta;
+        @SerializedName("resa")
+        private Double resa;
+        @SerializedName("id_avversita")
+        private Integer id_avversita;
+        private String grado_avversita;
+        @SerializedName("id_elemento_qualitativo")
+        private Integer id_elemento_qualitativo;
+        private String grado_elemento_qualitativo;
+        private String note_rilievo;
+
+        public Long getGid() {
+            return gid;
+        }
+
+        public void setGid(Long gid) {
+            this.gid = gid;
+        }
 
         public Boolean getTerrasystem() {
             return terrasystem;
@@ -350,16 +370,7 @@ public class DataModel {
             this.note_rilievo = note_rilievo;
         }
 
-        private Date data_raccolta;
-        @SerializedName("resa")
-        private Double resa;
-        @SerializedName("id_avversita")
-        private Integer id_avversita;
-        private String grado_avversita;
-        @SerializedName("id_elemento_qualitativo")
-        private Integer id_elemento_qualitativo;
-        private String grado_elemento_qualitativo;
-        private String note_rilievo;
+
 
 
     }

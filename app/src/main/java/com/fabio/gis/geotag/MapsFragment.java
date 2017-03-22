@@ -1,6 +1,7 @@
 package com.fabio.gis.geotag;
 
 import android.app.ProgressDialog;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -245,7 +246,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
 
     public interface OnMapLongPressListener {
-        public void onMapLongPress(MapMarker mapMarker);
+        void onMapLongPress(MapMarker mapMarker);
     }
 
 
@@ -306,66 +307,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         public void onProviderDisabled(String s) {
             Log.i(TAG,"Provider Disabled");
 
-        }
-    }
-
-    class DownloadDataTask  extends AsyncTask<String, Void, Integer> {
-
-
-        private static final int RESULT_OK = 0;
-        private static final int RESULT_FAILED = 1;
-        private ProgressDialog progressDialog;
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            progressDialog = new ProgressDialog(getActivity(), R.style.AppTheme_Dark_Dialog);
-            progressDialog.setIndeterminate(true);
-            progressDialog.setMessage(getString(R.string.authenticating_dialog));
-            progressDialog.show();
-        }
-
-        protected Integer doInBackground(String... urls) {
-            try {
-                HttpURLConnection connection = ServerManager.httpGetConnection(urls[0]);
-                DataModel.TomapSample tomapSample = null;
-                BufferedReader br = null;
-                String line;
-                StringBuilder json = new StringBuilder();
-                if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                    br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                    while ((line = br.readLine()) != null) {
-                        json.append(line);
-                    }
-                    Gson gson = JsonHandler.getInstance()
-                            .getGsonBuilder()
-                            .create();
-                    Type collectionType = new TypeToken<Collection<DataModel.TomapSample>>() {
-                    }.getType();
-                    Collection<DataModel.TomapSample> enums = gson.fromJson(json.toString(), collectionType);
-                    Iterator<DataModel.TomapSample> it = enums.iterator();
-
-                    return RESULT_OK;
-                }
-            } catch (Exception e) {
-                Log.e(TAG, e.toString());
-            }
-            return RESULT_FAILED;
-        }
-
-        protected void onPostExecute(Integer resultCode) {
-            switch (resultCode) {
-                case RESULT_OK:
-                    progressDialog.dismiss();
-                    // onLoginSuccess();
-                    break;
-                case RESULT_FAILED:
-                    progressDialog.dismiss();
-                    //onLoginFailed();
-                    break;
-                default:
-                    // Do nothing..
-            }
         }
     }
 }

@@ -87,7 +87,7 @@ public class LoginActivity extends AppCompatActivity {
         new LoginValidatorTask().execute(Constants.SERVER_PATH + "/" + Constants.TOMAP_API + "/users?username=" + email + "&pwd=" + password);
     }
 
-
+    /*
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_SIGNUP) {
@@ -98,6 +98,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         }
     }
+    */
 
     @Override
     public void onBackPressed() {
@@ -107,12 +108,13 @@ public class LoginActivity extends AppCompatActivity {
 
     public void onLoginSuccess() {
         _loginButton.setEnabled(true);
+        setResult(RESULT_OK);
         finish();
     }
 
     public void onLoginFailed() {
         Toast.makeText(getApplicationContext(), "Login failed", Toast.LENGTH_LONG).show();
-
+        setResult(RESULT_CANCELED);
         _loginButton.setEnabled(true);
     }
 

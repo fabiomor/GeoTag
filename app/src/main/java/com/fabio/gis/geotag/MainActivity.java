@@ -1,7 +1,10 @@
 package com.fabio.gis.geotag;
 
+import android.app.ProgressDialog;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.CoordinatorLayout;
@@ -21,8 +24,18 @@ import android.view.View;
 import android.support.design.widget.FloatingActionButton;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.lang.reflect.Type;
+import java.net.HttpURLConnection;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
 
 
 public class MainActivity extends AppCompatActivity implements MapsFragment.OnMapLongPressListener,
@@ -30,7 +43,7 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnMa
         View.OnClickListener, NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-
+    private DatabaseManager databaseManager;
 
     private SharedPreferences sharedPreferences;
     private SharedPreferences.OnSharedPreferenceChangeListener sharedPreferenceChangeListener;
@@ -57,6 +70,23 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnMa
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if(Constants.IS_LOGIN_REQUIRED) {
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivityForResult(intent,Constants.LOGIN_REQUEST_CODE);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == Constants.LOGIN_REQUEST_CODE) {
+            if(resultCode == RESULT_OK) {
+                init();
+            }
+        }
+    }
+    private void init() {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         if (toolbar != null) {
@@ -69,11 +99,6 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnMa
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        if(Constants.IS_LOGIN_REQUIRED) {
-            Intent intent = new Intent(this, LoginActivity.class);
-            startActivity(intent);
-        }
-
         mapsFragment = new MapsFragment();
         fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
@@ -81,8 +106,6 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnMa
                 //.addToBackStack(Constants.MAP_FRAGMENT_TAG)
                 .commit();
 
-        //TODO: adding fragment to backstack?
-        
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPreferenceChangeListener = new OnSharedPreferenceChangeListener();
 
@@ -91,14 +114,16 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnMa
         fabSecondary = (FloatingActionButton) findViewById(R.id.secondary_action);
         fabSecondary.setOnClickListener(this);
 
-
-
         coordinatorLayout = findViewById(R.id.coordinator_layout_app_bar_main);
 
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        new DownloadDataTask().execute(Constants.SERVER_PATH + "/" + Constants.TOMAP_API + "/sample");
+
     }
+
+
 
     @Override
     protected void onStart() {
@@ -111,8 +136,10 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnMa
         }
 
         // updating settings
-        for(String key : sharedPreferences.getAll().keySet()) {
-            updateSettingsFromPreferences(key);
+        if(sharedPreferences != null) {
+            for (String key : sharedPreferences.getAll().keySet()) {
+                updateSettingsFromPreferences(key);
+            }
         }
     }
 
@@ -352,6 +379,111 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnMa
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
             updateSettingsFromPreferences(key);
+        }
+    }
+
+
+    // ASYNC TASKS
+    class DownloadDataTask  extends AsyncTask<String, Void, Integer> {
+
+
+        private static final int RESULT_OK = 0;
+        private static final int RESULT_FAILED = 1;
+        private ProgressDialog progressDialog;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog = new ProgressDialog(MainActivity.this, R.style.AppTheme_Dark_Dialog);
+            progressDialog.setIndeterminate(true);
+            progressDialog.setMessage(getString(R.string.downloading_data_dialog));
+            progressDialog.show();
+            databaseManager = DatabaseManager.getInstance(getApplicationContext());
+        }
+
+        protected Integer doInBackground(String... urls) {
+            try {
+                HttpURLConnection connection = ServerManager.httpGetConnection(urls[0]);
+                DataModel.TomapSample tomapSample = null;
+                BufferedReader br = null;
+                String line;
+                StringBuilder json = new StringBuilder();
+                if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                    br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                    while ((line = br.readLine()) != null) {
+                        json.append(line);
+                    }
+                    Gson gson = JsonHandler.getInstance()
+                            .getGsonBuilder()
+                            .create();
+                    Type collectionType = new TypeToken<Collection<DataModel.TomapSample>>() {}.getType();
+                    Collection<DataModel.TomapSample> enums = gson.fromJson(json.toString(), collectionType);
+                    Iterator<DataModel.TomapSample> it = enums.iterator();
+                    while (it.hasNext()){
+                        databaseManager.getWritableDatabase()
+                                .replace(Constants.TABLE_NAME_RILIEVI, null, insertTomapSampleValues(it.next()));
+                    }
+                    return RESULT_OK;
+                }
+            } catch (Exception e) {
+                Log.e(TAG, e.toString());
+            }
+            return RESULT_FAILED;
+        }
+
+        protected void onPostExecute(Integer resultCode) {
+            switch (resultCode) {
+                case RESULT_OK:
+                    progressDialog.dismiss();
+                    // onLoginSuccess();
+                    break;
+                case RESULT_FAILED:
+                    progressDialog.dismiss();
+                    //onLoginFailed();
+                    break;
+                default:
+                    // Do nothing..
+            }
+        }
+
+        private ContentValues insertTomapSampleValues(DataModel.TomapSample tomapSample) {
+            ContentValues values = new ContentValues();
+            values.put("id_rilievi", tomapSample.getGid());
+            values.put("terrasystem", tomapSample.getTerrasystem());
+            values.put("id_squadra", tomapSample.getId_squadra());
+            values.put("id_utente_rilevatore", tomapSample.getId_utente_rilevatore());
+            values.put("id_gruppo_rilevatori", tomapSample.getId_gruppo_rilevatori());
+            values.put("azienda_rilevata", tomapSample.getAzienda_rilevata());
+            values.put("data_ora_rilievo", tomapSample.getData_ora_rilievo() != null ? tomapSample.getData_ora_rilievo().toString() : "");
+            values.put("data_ora_invio", tomapSample.getData_ora_invio() != null ? tomapSample.getData_ora_invio().toString() : "");
+            values.put("cod_punto", tomapSample.getCod_punto());
+            values.put("cod_uso", tomapSample.getCod_uso());
+            values.put("nome_varieta", tomapSample.getNome_varieta());
+            values.put("pacciamato", tomapSample.getPacciamato());
+            values.put("lato_strada", tomapSample.getLato_strada());
+            values.put("visibile", tomapSample.getVisibile());
+            values.put("note_coltura", tomapSample.getNote_coltura());
+            values.put("data_trapianto", tomapSample.getData_trapianto() != null ? tomapSample.getData_trapianto().toString() : "");
+            values.put("id_classe_tempo_trapianto", tomapSample.getId_classe_tempo_trapianto());
+            values.put("id_stadio_accresc", tomapSample.getId_stadio_accresc());
+            values.put("resa", tomapSample.getResa());
+            values.put("note_rilievo", tomapSample.getNote_rilievo());
+            values.put("note_importazione", tomapSample.getNote_importazione());
+            values.put("lat", tomapSample.getLat());
+            values.put("lon", tomapSample.getLon());
+            values.put("mappa", tomapSample.getMappa());
+            values.put("x_stima", tomapSample.getX_stima());
+            values.put("id_uso", tomapSample.getId_uso());
+            values.put("icon", tomapSample.getIcon());
+            values.put("id_avversita", tomapSample.getId_avversita());
+            values.put("grado_avversita", tomapSample.getGrado_avversita());
+            values.put("id_elemento_qualitativo", tomapSample.getId_elemento_qualitativo());
+            values.put("grado_elemento_qualitativo", tomapSample.getGrado_elemento_qualitativo());
+            values.put("tipo_pomodoro", tomapSample.getTipo_pomodoro());
+            values.put("data_raccolta", tomapSample.getData_raccolta() != null ? tomapSample.getData_raccolta().toString() : "");
+            values.put("data_trapianto", tomapSample.getData_trapianto() != null ? tomapSample.getData_trapianto().toString() : "");
+            values.put("data_trapianto_certezza", tomapSample.getData_trapianto_certezza());
+            return values;
         }
     }
 }
