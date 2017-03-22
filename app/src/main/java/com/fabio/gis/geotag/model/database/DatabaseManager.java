@@ -1,9 +1,11 @@
-package com.fabio.gis.geotag;
+package com.fabio.gis.geotag.model.database;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+
+import com.fabio.gis.geotag.model.helper.Constants;
 
 /**
  * Created by pc on 20/03/2017.
@@ -16,7 +18,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     private static final int SCHEMA_VERSION=3;
     private static DatabaseManager singleton=null;
 
-    synchronized static DatabaseManager getInstance(Context ctxt) {
+    public synchronized static DatabaseManager getInstance(Context ctxt) {
         if (singleton == null) {
             singleton=new DatabaseManager(ctxt.getApplicationContext());
         }

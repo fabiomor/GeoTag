@@ -1,4 +1,4 @@
-package com.fabio.gis.geotag;
+package com.fabio.gis.geotag.model.helper;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -23,7 +23,7 @@ public class JsonHandler {
     private static GsonBuilder gsonBuilder;
     private static Gson gson;
 
-    synchronized static JsonHandler getInstance() {
+    public synchronized static JsonHandler getInstance() {
         if (singleton == null) {
             singleton=new JsonHandler();
         }

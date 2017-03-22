@@ -1,4 +1,4 @@
-package com.fabio.gis.geotag;
+package com.fabio.gis.geotag.model.data;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;

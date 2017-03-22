@@ -1,7 +1,6 @@
-package com.fabio.gis.geotag;
+package com.fabio.gis.geotag.ui;
 
 import android.app.ProgressDialog;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -12,6 +11,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.fabio.gis.geotag.R;
+import com.fabio.gis.geotag.ServerManager;
+import com.fabio.gis.geotag.model.data.DataModel;
+import com.fabio.gis.geotag.model.helper.Constants;
+import com.fabio.gis.geotag.model.helper.JsonHandler;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -142,7 +146,7 @@ public class LoginActivity extends AppCompatActivity {
         return valid;
     }
 
-    class LoginValidatorTask  extends AsyncTask<String, Void, Integer> {
+    public class LoginValidatorTask  extends AsyncTask<String, Void, Integer> {
 
 
         private static final int RESULT_OK = 0;

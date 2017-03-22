@@ -23,7 +23,7 @@
             android:value="AIzaSyD4AVVdvs6VBMdrAVFGafhE2YMMqQvxNpQ"/>
 
         <activity
-            android:name="com.fabio.gis.geotag.MainActivity"
+            android:name="com.fabio.gis.geotag.ui.MainActivity"
             android:label="@string/title_activity_maps">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -31,8 +31,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.fabio.gis.geotag.SettingsActivity"/>
-        <activity android:name="com.fabio.gis.geotag.LoginActivity" />
+        <activity android:name="com.fabio.gis.geotag.ui.SettingsActivity"/>
+        <activity android:name="com.fabio.gis.geotag.ui.LoginActivity" />
     </application>
 
 </manifest>

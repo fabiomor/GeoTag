@@ -1,4 +1,4 @@
-package com.fabio.gis.geotag;
+package com.fabio.gis.geotag.ui;
 
 import android.app.ProgressDialog;
 import android.content.ContentValues;
@@ -7,7 +7,6 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -23,11 +22,19 @@ import android.view.MenuItem;
 import android.view.View;
 import android.support.design.widget.FloatingActionButton;
 
+import com.fabio.gis.geotag.ChartsFragment;
+import com.fabio.gis.geotag.model.helper.PermissionManager;
+import com.fabio.gis.geotag.R;
+import com.fabio.gis.geotag.ServerManager;
+import com.fabio.gis.geotag.model.data.DataModel;
+import com.fabio.gis.geotag.model.data.MapMarker;
+import com.fabio.gis.geotag.model.database.DatabaseManager;
+import com.fabio.gis.geotag.model.helper.Constants;
+import com.fabio.gis.geotag.model.helper.JsonHandler;
+import com.fabio.gis.geotag.model.helper.Settings;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

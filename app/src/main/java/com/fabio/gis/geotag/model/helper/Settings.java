@@ -1,4 +1,4 @@
-package com.fabio.gis.geotag;
+package com.fabio.gis.geotag.model.helper;
 
 
 public class Settings {

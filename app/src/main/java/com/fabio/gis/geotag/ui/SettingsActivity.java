@@ -1,4 +1,4 @@
-package com.fabio.gis.geotag;
+package com.fabio.gis.geotag.ui;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
@@ -7,6 +7,7 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 
 import com.fabio.gis.geotag.R;
+import com.fabio.gis.geotag.model.helper.Constants;
 
 import java.util.Map;
 
