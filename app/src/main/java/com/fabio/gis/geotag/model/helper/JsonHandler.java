@@ -48,7 +48,7 @@ public class JsonHandler {
         };
 
         gsonBuilder = new GsonBuilder()
-                .setDateFormat(Constants.DATE_FORMAT);
+                .setDateFormat(Constants.CONFIG.DATE_FORMAT);
                 //.registerTypeAdapter(Date.class, ser)
                 //.registerTypeAdapter(Date.class, deser);
         gson = gsonBuilder.create();

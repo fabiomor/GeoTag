@@ -19,7 +19,7 @@ import android.view.ViewGroup;
 
 import com.fabio.gis.geotag.model.data.MapMarker;
 import com.fabio.gis.geotag.R;
-import com.fabio.gis.geotag.model.helper.Settings;
+import com.fabio.gis.geotag.model.data.Settings;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;

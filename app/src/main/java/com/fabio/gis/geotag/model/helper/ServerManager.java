@@ -1,10 +1,8 @@
-package com.fabio.gis.geotag;
+package com.fabio.gis.geotag.model.helper;
 
 import android.util.Log;
 
-import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;

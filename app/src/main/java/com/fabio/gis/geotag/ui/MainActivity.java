@@ -21,17 +21,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.support.design.widget.FloatingActionButton;
+import android.widget.Toast;
 
-import com.fabio.gis.geotag.ChartsFragment;
+import com.fabio.gis.geotag.control.RestManager;
 import com.fabio.gis.geotag.model.helper.PermissionManager;
 import com.fabio.gis.geotag.R;
-import com.fabio.gis.geotag.ServerManager;
+import com.fabio.gis.geotag.model.helper.ServerManager;
 import com.fabio.gis.geotag.model.data.DataModel;
 import com.fabio.gis.geotag.model.data.MapMarker;
 import com.fabio.gis.geotag.model.database.DatabaseManager;
 import com.fabio.gis.geotag.model.helper.Constants;
 import com.fabio.gis.geotag.model.helper.JsonHandler;
-import com.fabio.gis.geotag.model.helper.Settings;
+import com.fabio.gis.geotag.model.data.Settings;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -43,6 +44,11 @@ import java.net.HttpURLConnection;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
 public class MainActivity extends AppCompatActivity implements MapsFragment.OnMapLongPressListener,
@@ -51,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnMa
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private DatabaseManager databaseManager;
+    private RestManager mManager;
 
     private SharedPreferences sharedPreferences;
     private SharedPreferences.OnSharedPreferenceChangeListener sharedPreferenceChangeListener;
@@ -70,24 +77,23 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnMa
     //
     LatLng latLng;
     MapMarker mapMarker;
-
-
+    private ProgressDialog mDialog;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if(Constants.IS_LOGIN_REQUIRED) {
+        if(Constants.CONFIG.IS_LOGIN_REQUIRED) {
             Intent intent = new Intent(this, LoginActivity.class);
-            startActivityForResult(intent,Constants.LOGIN_REQUEST_CODE);
+            startActivityForResult(intent,Constants.CONFIG.LOGIN_REQUEST_CODE);
         }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == Constants.LOGIN_REQUEST_CODE) {
+        if(requestCode == Constants.CONFIG.LOGIN_REQUEST_CODE) {
             if(resultCode == RESULT_OK) {
                 init();
             }
@@ -109,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnMa
         mapsFragment = new MapsFragment();
         fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
-                .add(R.id.maincontainer,mapsFragment,Constants.MAP_FRAGMENT_TAG)
+                .add(R.id.maincontainer,mapsFragment,Constants.FRAGMENT_TAG.MAP_FRAGMENT_TAG)
                 //.addToBackStack(Constants.MAP_FRAGMENT_TAG)
                 .commit();
 
@@ -126,7 +132,10 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnMa
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        new DownloadDataTask().execute(Constants.SERVER_PATH + "/" + Constants.TOMAP_API + "/sample");
+        databaseManager = DatabaseManager.getInstance(this);
+        mManager = new RestManager();
+        getFeed();
+        //new DownloadDataTask().execute(Constants.TOMAP.HTTP.BASE_URL + "/sample");
 
     }
 
@@ -139,7 +148,7 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnMa
         if(!PermissionManager.checkPermissions(this.getApplicationContext(), Arrays.asList(
                 android.Manifest.permission.ACCESS_FINE_LOCATION,
                 android.Manifest.permission.ACCESS_COARSE_LOCATION))){
-            PermissionManager.requestPermissions(this,Constants.APPLICATION_PERMISSIONS_REQUEST);
+            PermissionManager.requestPermissions(this,Constants.CONFIG.APPLICATION_PERMISSIONS_REQUEST);
         }
 
         // updating settings
@@ -211,7 +220,7 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnMa
                 Fragment currentFragment = fragmentManager.findFragmentById(R.id.maincontainer);
                 String tag = currentFragment.getTag();
                 switch (tag) {
-                    case Constants.MAP_FRAGMENT_TAG:
+                    case Constants.FRAGMENT_TAG.MAP_FRAGMENT_TAG:
                         fabSecondary.setVisibility(View.INVISIBLE);
                         Bundle bundle = new Bundle();
                         bundle.putDouble("latitude", mapMarker.getPositon().latitude);
@@ -225,11 +234,11 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnMa
                                 .commit();
                         */
                         fragmentManager.beginTransaction()
-                                .replace(R.id.maincontainer, tomapFragment, Constants.TOMAP_FRAGMENT_TAG)
-                                .addToBackStack(Constants.TOMAP_FRAGMENT_TAG)
+                                .replace(R.id.maincontainer, tomapFragment, Constants.FRAGMENT_TAG.TOMAP_FRAGMENT_TAG)
+                                .addToBackStack(Constants.FRAGMENT_TAG.TOMAP_FRAGMENT_TAG)
                                 .commit();
                         break;
-                    case Constants.TOMAP_FRAGMENT_TAG:
+                    case Constants.FRAGMENT_TAG.TOMAP_FRAGMENT_TAG:
                         tomapFragment.buildJson();
                         break;
                     default:
@@ -273,7 +282,7 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnMa
             fragmentManager.popBackStack();
             String tag = fragmentManager.findFragmentById(R.id.maincontainer).getTag();
             switch (tag) {
-                case Constants.TOMAP_FRAGMENT_TAG:
+                case Constants.FRAGMENT_TAG.TOMAP_FRAGMENT_TAG:
                     fabSecondary.setVisibility(View.VISIBLE);
             }
         }
@@ -329,33 +338,79 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnMa
 
     private void updateSettingsFromPreferences(String key) {
         switch (key) {
-            case Constants.USERNAME_KEY:
+            case Constants.PREFERENCES.USERNAME_KEY:
                 Settings.setUsername(sharedPreferences.getString(key, "username"));
                 break;
 
-            case Constants.PASSWORD_KEY:
+            case Constants.PREFERENCES.PASSWORD_KEY:
                 Settings.setPassword(sharedPreferences.getString(key, "password"));
                 break;
 
-            case Constants.SERVER_PROTOCOL_KEY:
+            case Constants.PREFERENCES.SERVER_PROTOCOL_KEY:
                 Settings.setServerProtocol(sharedPreferences.getString(key, "http"));
                 break;
 
-            case Constants.SERVER_ADDRESS_KEY:
+            case Constants.PREFERENCES.SERVER_ADDRESS_KEY:
                 Settings.setServerAddress(sharedPreferences.getString(key, "localhost"));
                 break;
 
-            case Constants.SERVER_PORT_KEY:
+            case Constants.PREFERENCES.SERVER_PORT_KEY:
                 Settings.setServerPort(Integer.parseInt(sharedPreferences.getString(key, "8080")));
                 break;
 
-            case Constants.ZOOM_LEVEL:
+            case Constants.PREFERENCES.ZOOM_LEVEL:
                 Settings.setZoomLevel(Float.parseFloat(sharedPreferences.getString(key, "16")));
                 break;
 
             default:
         }
     }
+
+    public void getFeed() {
+        mDialog = new ProgressDialog(MainActivity.this);
+        mDialog.setMessage("Loading DB Data Feed...");
+        mDialog.setCancelable(true);
+        mDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        mDialog.setIndeterminate(true);
+
+
+        Call<List<DataModel.TomapSample>> listCall = mManager.getTomapService().getTomapSamples();
+        listCall.enqueue(new Callback<List<DataModel.TomapSample>>() {
+
+            @Override
+            public void onResponse(Call<List<DataModel.TomapSample>> call, Response<List<DataModel.TomapSample>> response) {
+
+                if (response.isSuccessful()) {
+                    List<DataModel.TomapSample> tomapSampleList = response.body();
+
+                    for (int i = 0; i < tomapSampleList.size(); i++) {
+                        DataModel.TomapSample sample = tomapSampleList.get(i);
+                        databaseManager.insertTomapSample(sample);
+                    }
+                } else {
+                    int sc = response.code();
+                    switch (sc) {
+                        case 400:
+                            Log.e("Error 400", "Bad Request");
+                            break;
+                        case 404:
+                            Log.e("Error 404", "Not Found");
+                            break;
+                        default:
+                            Log.e("Error", "Generic Error");
+                    }
+                }
+                mDialog.dismiss();
+            }
+
+            @Override
+            public void onFailure(Call<List<DataModel.TomapSample>> call, Throwable t) {
+                mDialog.dismiss();
+                Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
 
 
 
@@ -428,7 +483,7 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.OnMa
                     Iterator<DataModel.TomapSample> it = enums.iterator();
                     while (it.hasNext()){
                         databaseManager.getWritableDatabase()
-                                .replace(Constants.TABLE_NAME_RILIEVI, null, insertTomapSampleValues(it.next()));
+                                .replace(Constants.TOMAP.DATABASE.TABLE_NAME_RILIEVI, null, insertTomapSampleValues(it.next()));
                     }
                     return RESULT_OK;
                 }

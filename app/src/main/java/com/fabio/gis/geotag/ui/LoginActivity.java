@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -12,7 +13,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.fabio.gis.geotag.R;
-import com.fabio.gis.geotag.ServerManager;
+import com.fabio.gis.geotag.model.helper.ServerManager;
 import com.fabio.gis.geotag.model.data.DataModel;
 import com.fabio.gis.geotag.model.helper.Constants;
 import com.fabio.gis.geotag.model.helper.JsonHandler;
@@ -48,7 +49,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         ButterKnife.bind(this);
-        sharedPreferences = getApplicationContext().getSharedPreferences(Constants.SHARED_PREFERENCES_NAME, MODE_PRIVATE);
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         _loginButton.setOnClickListener(new View.OnClickListener() {
 
@@ -88,7 +89,7 @@ public class LoginActivity extends AppCompatActivity {
 
         // TODO: 16/03/2017 opzione rimani registrato
 
-        new LoginValidatorTask().execute(Constants.SERVER_PATH + "/" + Constants.TOMAP_API + "/users?username=" + email + "&pwd=" + password);
+        new LoginValidatorTask().execute(Constants.TOMAP.HTTP.BASE_URL + "/users?username=" + email + "&pwd=" + password);
     }
 
     /*
@@ -183,13 +184,13 @@ public class LoginActivity extends AppCompatActivity {
                     if(it.hasNext()){
                         tomapSample = it.next();
                         if(tomapSample.getId_utente_rilevatore() != null)
-                            sharedPreferences.edit().putString(Constants.TOMAP_ID_UTENTE,String.valueOf(tomapSample.getId_utente_rilevatore())).apply();
+                            sharedPreferences.edit().putInt(Constants.TOMAP.PREFERENCES.TOMAP_ID_UTENTE,tomapSample.getId_utente_rilevatore()).apply();
                         if(tomapSample.getCognome_rilevatore() != null)
-                            sharedPreferences.edit().putString(Constants.TOMAP_GOGNOME,tomapSample.getCognome_rilevatore()).apply();
+                            sharedPreferences.edit().putString(Constants.TOMAP.PREFERENCES.TOMAP_GOGNOME,tomapSample.getCognome_rilevatore()).apply();
                         if(tomapSample.getId_gruppo_rilevatori() != null)
-                            sharedPreferences.edit().putString(Constants.TOMAP_ID_GRUPPO,String.valueOf(tomapSample.getId_gruppo_rilevatori())).apply();
+                            sharedPreferences.edit().putInt(Constants.TOMAP.PREFERENCES.TOMAP_ID_GRUPPO,tomapSample.getId_gruppo_rilevatori()).apply();
                         if(tomapSample.getId_squadra() != null)
-                            sharedPreferences.edit().putString(Constants.TOMAP_ID_SQUADRA,String.valueOf(tomapSample.getId_squadra())).apply();
+                            sharedPreferences.edit().putInt(Constants.TOMAP.PREFERENCES.TOMAP_ID_SQUADRA,tomapSample.getId_squadra()).apply();
                     }
                     else{
                         // TODO: 16/03/2017 lista utenti vuota ma login passato, come gestirlo?

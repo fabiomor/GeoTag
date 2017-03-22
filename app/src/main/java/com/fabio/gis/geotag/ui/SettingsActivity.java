@@ -47,7 +47,7 @@ public class SettingsActivity extends Activity {
                 return;
             }
             String valueStr = String.valueOf(value);
-            if (key.equals(Constants.PASSWORD_KEY)) {
+            if (key.equals(Constants.PREFERENCES.PASSWORD_KEY)) {
                 char[] hiddenPassword = new char[valueStr.length()];
                 for (int i=0; i<hiddenPassword.length; i++) {
                     hiddenPassword[i] = '*';

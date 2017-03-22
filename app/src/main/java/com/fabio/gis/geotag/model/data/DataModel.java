@@ -6,23 +6,30 @@ package com.fabio.gis.geotag.model.data;
 
 import com.google.gson.annotations.*;
 
+import java.io.Serializable;
 import java.util.Date;
 
 public class DataModel {
 
-    public static class TomapSample {
+    public static class TomapSample implements Serializable{
 
         // autocompletate
+        @Expose
         @SerializedName("terrasystem")
         private Boolean terrasystem;
+        @Expose
         @SerializedName("id_utente")
         private Integer id_utente_rilevatore;
+        @Expose
         @SerializedName("id_gruppo")
         private Integer id_gruppo_rilevatori;
+        @Expose
         @SerializedName("id_squadra")
         private Integer id_squadra;
+        @Expose
         @SerializedName("cognome")
         private String cognome_rilevatore;
+        @Expose
         private Date data_ora_invio;
 
 
@@ -47,31 +54,49 @@ public class DataModel {
 
 
         // utilizzate
+        @Expose
         @SerializedName("gid")
         private Long gid;
+        @Expose
         @SerializedName("lat")
         private Double lat;
+        @Expose
         @SerializedName("lon")
         private Double lon;
+        @Expose
         private Date data_ora_rilievo;
+        @Expose
         private Integer cod_uso;
+        @Expose
         private String tipo_pomodoro;
+        @Expose
         @SerializedName("pacciamato")
         private Boolean pacciamato;
+        @Expose
         private String note_coltura;
+        @Expose
         private Date data_trapianto;
+        @Expose
         private String data_trapianto_certezza;
+        @Expose
         @SerializedName("id_stadio_accresc")
         private Integer id_stadio_accresc;
+        @Expose
         private Date data_raccolta;
+        @Expose
         @SerializedName("resa")
         private Double resa;
+        @Expose
         @SerializedName("id_avversita")
         private Integer id_avversita;
+        @Expose
         private String grado_avversita;
+        @Expose
         @SerializedName("id_elemento_qualitativo")
         private Integer id_elemento_qualitativo;
+        @Expose
         private String grado_elemento_qualitativo;
+        @Expose
         private String note_rilievo;
 
         public Long getGid() {

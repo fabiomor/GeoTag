@@ -1,4 +1,4 @@
-package com.fabio.gis.geotag;
+package com.fabio.gis.geotag.model.adapter;
 
 /**
  * Created by pc on 08/03/2017.

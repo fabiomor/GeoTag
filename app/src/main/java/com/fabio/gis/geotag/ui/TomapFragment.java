@@ -22,7 +22,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 
 import com.fabio.gis.geotag.R;
-import com.fabio.gis.geotag.ServerManager;
+import com.fabio.gis.geotag.model.helper.ServerManager;
 import com.fabio.gis.geotag.model.data.DataModel;
 import com.fabio.gis.geotag.model.helper.Constants;
 import com.fabio.gis.geotag.model.helper.JsonHandler;
@@ -222,7 +222,7 @@ public class TomapFragment extends Fragment implements View.OnClickListener, Ada
     }
 
     private String getDateUpdated() {
-        SimpleDateFormat sdf = new SimpleDateFormat(Constants.DATE_FORMAT);
+        SimpleDateFormat sdf = new SimpleDateFormat(Constants.CONFIG.DATE_FORMAT);
         return sdf.format(calendar.getTime());
     }
 
@@ -231,13 +231,14 @@ public class TomapFragment extends Fragment implements View.OnClickListener, Ada
     }
 
     public void buildJson(){
-        SimpleDateFormat sdf = new SimpleDateFormat(Constants.DATE_FORMAT);
+        SimpleDateFormat sdf = new SimpleDateFormat(Constants.CONFIG.DATE_FORMAT);
         //getSpinnerValues();
         try {
-            tomapSample.setId_utente_rilevatore(sharedPreferences.getInt(Constants.TOMAP_ID_UTENTE, 0));
-            tomapSample.setId_gruppo_rilevatori(sharedPreferences.getInt(Constants.TOMAP_ID_GRUPPO, 0));
-            tomapSample.setCognome_rilevatore(sharedPreferences.getString(Constants.TOMAP_GOGNOME, ""));
-            tomapSample.setId_squadra(sharedPreferences.getInt(Constants.TOMAP_ID_SQUADRA, 0));
+            int s = sharedPreferences.getInt(Constants.TOMAP.PREFERENCES.TOMAP_ID_UTENTE, 0);
+            tomapSample.setId_utente_rilevatore(sharedPreferences.getInt(Constants.TOMAP.PREFERENCES.TOMAP_ID_UTENTE, 0));
+            tomapSample.setId_gruppo_rilevatori(sharedPreferences.getInt(Constants.TOMAP.PREFERENCES.TOMAP_ID_GRUPPO, 0));
+            tomapSample.setCognome_rilevatore(sharedPreferences.getString(Constants.TOMAP.PREFERENCES.TOMAP_GOGNOME, ""));
+            tomapSample.setId_squadra(sharedPreferences.getInt(Constants.TOMAP.PREFERENCES.TOMAP_ID_SQUADRA, 0));
             tomapSample.setLat(Double.parseDouble(input_latitude.getText().toString()));
             tomapSample.setLon(Double.parseDouble(input_longitude.getText().toString()));
             tomapSample.setData_ora_rilievo((sdf.parse(measure_date.getText().toString())));
@@ -257,7 +258,7 @@ public class TomapFragment extends Fragment implements View.OnClickListener, Ada
                         .getGsonBuilder()
                         .create();
         String json = gson.toJson(tomapSample);
-        new TomapSampleHttpPostTask(json).execute(Constants.SERVER_PATH + "/" + Constants.TOMAP_SAMPLE_INSERT_API_PATH, json);
+        new TomapSampleHttpPostTask(json).execute(Constants.TOMAP.HTTP.BASE_URL + "/sample", json);
     }
 
     // TODO: 13/03/2017 da rimuovere getspinnervalues? 
